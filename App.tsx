@@ -1,10 +1,36 @@
+import { useCallback, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View, Image } from 'react-native';
+import HomeScreen from './src/Screens/HomeScreen';
+import * as SplashScreen from 'expo-splash-screen';
+import { useFonts } from 'expo-font';
+
+
+SplashScreen.preventAutoHideAsync();
 
 export default function App() {
+
+  const[loaded, error] = useFonts({
+    'Poppins-Bold': require('./assets/fonts/Poppins-Bold.ttf'),
+    'Poppins-Regular': require('./assets/fonts/Poppins-Regular.ttf'),
+    'Poppins-Thin': require('./assets/fonts/Poppins-Thin.ttf'),
+    'Poppins-SemiBold': require('./assets/fonts/Poppins-SemiBold.ttf')
+
+  })
+
+  useEffect(()=>{
+    if(loaded || error){
+      SplashScreen.hideAsync();
+    }
+  }, [loaded,error]);
+
+  if(!loaded && !error){
+    return null;
+  }
+
   return (
     <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
+      <HomeScreen/>
       <StatusBar style="auto" />
     </View>
   );
@@ -13,8 +39,7 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+    justifyContent: 'center', 
+    alignItems: 'center', 
+  }
 });
