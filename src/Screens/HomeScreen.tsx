@@ -18,14 +18,14 @@ export default function HomeScreen() {
 
             <CustomButton
                 title="Login"
-                color="white"
+                color= {Theme.SECONDARY}
                 textColor= {Theme.TERTIARY }
                 onPress={() => console.log('Login pressed')}
             />
             <View style={styles.buttons}>
-                <View style={{ width: 125, height: 1, backgroundColor: Theme.SECONDARY, marginRight: 10 }}></View>
-                <Text style={{ color: 'white', fontSize: 20, fontFamily: 'Poppins-Regular'}}>or</Text>
-                <View style={{ width: 125, height: 1, backgroundColor: Theme.SECONDARY, marginLeft: 10 }}></View>
+                <View style={[styles.bar,{marginRight: 10 } ]}></View>
+                <Text style={[styles.text,{marginBottom: 0, marginTop:10, fontSize: 20} ]}>or</Text>
+                <View style={[styles.bar, {marginLeft: 10 } ]}></View>
             </View>
             <CustomButton
                 title="Sign Up"
@@ -64,5 +64,11 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center'
+    },
+    bar:{
+        width: 150,
+        height: 1,
+        backgroundColor:Theme.SECONDARY,
+        marginTop: 10
     }
 });

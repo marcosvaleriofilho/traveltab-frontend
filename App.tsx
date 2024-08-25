@@ -1,9 +1,11 @@
 import { useCallback, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View, Image } from 'react-native';
-import HomeScreen from './src/Screens/HomeScreen';
 import * as SplashScreen from 'expo-splash-screen';
 import { useFonts } from 'expo-font';
+import HomeScreen from './src/Screens/HomeScreen';
+import SignUpScreen from './src/Screens/SignUpScreen';
+import LoginScreen from './src/Screens/LoginScreen';
 
 
 SplashScreen.preventAutoHideAsync();

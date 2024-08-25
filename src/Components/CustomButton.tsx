@@ -4,14 +4,21 @@ import { TouchableOpacity, Text, StyleSheet, GestureResponderEvent } from 'react
 interface CustomButtonProps {
     onPress: (event: GestureResponderEvent) => void;
     title: string;
-    color?: string;
-    textColor?: string;  
+    color?: string; // Cor de fundo do botão
+    textColor?: string; // Cor do texto
+    borderColor?: string; // Cor da borda
 }
 
-const CustomButton: React.FC<CustomButtonProps> = ({ onPress, title, color = '#2196F3', textColor = 'white' }) => {
+const CustomButton: React.FC<CustomButtonProps> = ({
+    onPress,
+    title,
+    color = '#2196F3',
+    textColor = 'white',
+    borderColor = 'white' // Cor da borda padrão
+}) => {
     return (
         <TouchableOpacity 
-            style={[styles.button, { backgroundColor: color }]} 
+            style={[styles.button, { backgroundColor: color, borderColor: borderColor }]} 
             onPress={onPress}
         >
             <Text style={[styles.buttonText, { color: textColor }]}>{title}</Text> 
@@ -21,13 +28,13 @@ const CustomButton: React.FC<CustomButtonProps> = ({ onPress, title, color = '#2
 
 const styles = StyleSheet.create({
     button: {
-        width: 300,
+        marginTop: 20,
+        width: 350,
         height: 50,
         borderRadius: 12,
         alignItems: 'center',
         justifyContent: 'center',
-        borderWidth: 2,
-        borderColor: 'white'
+        borderWidth: 2, // Espessura da borda
     },
     buttonText: {
         fontSize: 20,
