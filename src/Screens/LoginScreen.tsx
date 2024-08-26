@@ -3,11 +3,19 @@ import { StyleSheet, Text, View, Image } from 'react-native';
 import CustomButton from '../Components/CustomButton';
 import { Theme } from '../../constants/Theme';
 import { CustomInput } from '../Components/CustomInput';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { RootStackParamList } from '../../App';
 
 export default function LoginScreen() {
+    const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
+    const handleLogin = () => {
+        console.log('Login pressed');
+        navigation.navigate('Home');
+    };
     return (
         <View style={styles.container}>
             <Image
@@ -42,7 +50,7 @@ export default function LoginScreen() {
                         title="Login"
                         textColor='white'
                         color={Theme.TERTIARY}
-                        onPress={() => console.log('Sign Up pressed')}
+                        onPress={handleLogin}
                     />
                 </View>
             </View>

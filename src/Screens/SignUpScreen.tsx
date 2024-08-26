@@ -3,12 +3,21 @@ import { StyleSheet, Text, View, Image } from 'react-native';
 import CustomButton from '../Components/CustomButton';
 import { Theme } from '../../constants/Theme';
 import { CustomInput } from '../Components/CustomInput';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { RootStackParamList } from '../../App'; // Agora deve funcionar corretamente
 
 export default function SignUpScreen() {
+    const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+
+    const handleSignUp = () => {
+        console.log('Sign Up pressed');
+        navigation.navigate('Home');
+    };
 
     return (
         <View style={styles.container}>
@@ -24,7 +33,7 @@ export default function SignUpScreen() {
                 <Text style={[styles.text, { fontFamily: 'Poppins-Bold', marginBottom: 30 }]}>TravelTab</Text>
 
                 <View style={styles.formContainer}>
-                    <Text style={[styles.text, { color: Theme.TERTIARY, fontFamily: 'Poppins-Bold' }]}>Sign Up</Text>
+                    <Text style={[styles.text, { fontSize:30, color: Theme.TERTIARY, fontFamily: 'Poppins-Bold' }]}>Sign Up</Text>
 
                     <CustomInput
                         label="Name"
@@ -51,7 +60,7 @@ export default function SignUpScreen() {
                         title="Sign Up"
                         textColor='white'
                         color={Theme.TERTIARY}
-                        onPress={() => console.log('Sign Up pressed')}
+                        onPress={handleSignUp}
                     />
                 </View>
             </View>

@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
         marginBottom: 15,
     },
     label: {
-        fontSize: 16,
+        fontSize: 18,
         fontFamily: 'Poppins-Bold',
         color: Theme.TERTIARY,
     },

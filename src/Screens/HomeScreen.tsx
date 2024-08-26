@@ -1,8 +1,15 @@
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useNavigation } from '@react-navigation/native';
 import { StyleSheet, Text, View, Image } from 'react-native';
 import CustomButton from '../Components/CustomButton'; 
 import { Theme } from '../../constants/Theme';
+import { RootStackParamList } from '../../App';
+
+type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
 
 export default function HomeScreen() {
+    const navigation = useNavigation<HomeScreenNavigationProp>();
+
     return (
         <View style={styles.container}>
             <Image
@@ -13,25 +20,29 @@ export default function HomeScreen() {
                 style={styles.logo}
                 source={require('../../assets/logo.png')}
             />
-            <Text style={[styles.text, {fontFamily:'Poppins-Bold'}]}>Welcome to{`\n`}TravelTab</Text>
-            <Text style={styles.text}>Split the costs,{`\n`}double the memories</Text>
+            <Text style={[styles.text, { fontFamily: 'Poppins-Bold' }]}>
+                Welcome to{`\n`}TravelTab
+            </Text>
+            <Text style={styles.text}>
+                Split the costs,{`\n`}double the memories
+            </Text>
 
             <CustomButton
                 title="Login"
-                color= {Theme.SECONDARY}
-                textColor= {Theme.TERTIARY }
-                onPress={() => console.log('Login pressed')}
+                color={Theme.SECONDARY}
+                textColor={Theme.TERTIARY}
+                onPress={() => navigation.navigate('Login')}
             />
             <View style={styles.buttons}>
-                <View style={[styles.bar,{marginRight: 10 } ]}></View>
-                <Text style={[styles.text,{marginBottom: 0, marginTop:10, fontSize: 20} ]}>or</Text>
-                <View style={[styles.bar, {marginLeft: 10 } ]}></View>
+                <View style={[styles.bar, { marginRight: 10 }]}></View>
+                <Text style={[styles.text, { marginBottom: 0, marginTop: 10, fontSize: 20 }]}>or</Text>
+                <View style={[styles.bar, { marginLeft: 10 }]}></View>
             </View>
             <CustomButton
                 title="Sign Up"
-                textColor='white'
+                textColor="white"
                 color="transparent"
-                onPress={() => console.log('Sign Up pressed')}
+                onPress={() => navigation.navigate('SignUp')}
             />
         </View>
     );
