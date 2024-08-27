@@ -14,8 +14,8 @@ export default function LoginScreen() {
 
     const handleLogin = () => {
         console.log('Login pressed');
-        navigation.navigate('Home');
-    };
+        navigation.navigate('MainTabs');
+      };
     return (
         <View style={styles.container}>
             <Image
