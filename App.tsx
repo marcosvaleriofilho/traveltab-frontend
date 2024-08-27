@@ -32,21 +32,21 @@ function MainTabs() {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
-        tabBarIcon: ({ color, size }) => {
+        tabBarIcon: ({ color, size, focused }) => {
           const iconName: keyof typeof Ionicons.glyphMap = (() => {
             switch (route.name) {
-              case 'Home':
-                return 'home-outline';
+              case 'Groups':
+                return focused ? 'home' : 'home-outline';
               case 'Profile':
-                return 'person-outline';
+                return focused ? 'person' : 'person-outline';
               case 'Tasks':
-                return 'checkbox-outline';
+                return focused ? 'checkbox' : 'checkbox-outline';
               case 'Balance':
-                return 'cash-outline';
+                return focused ? 'cash' : 'cash-outline';
               case 'Alerts':
-                return 'notifications-outline';
+                return focused ? 'notifications' : 'notifications-outline';
               default:
-                return 'help-circle-outline';
+                return focused ? 'help' : 'help-circle-outline';
             }
           })();
 
@@ -58,7 +58,7 @@ function MainTabs() {
           fontSize: 14,
           fontFamily: 'Poppins-Bold',
         },
-        tabBarStyle:{
+        tabBarStyle: {
           height: 60,
           paddingTop: 10,
         },
@@ -67,7 +67,7 @@ function MainTabs() {
     >
       <Tab.Screen name="Tasks" component={TasksScreen} />
       <Tab.Screen name="Balance" component={MoneyScreen} />
-      <Tab.Screen name="Home" component={MainScreen} />
+      <Tab.Screen name="Groups" component={MainScreen} />
       <Tab.Screen name="Alerts" component={NotifyScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
@@ -95,12 +95,12 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Home">
-        <Stack.Screen options={{headerShown: false}} name="Home" component={HomeScreen} />
-        <Stack.Screen options={{headerShown: false}} name="SignUp" component={SignUpScreen} />
-        <Stack.Screen options={{headerShown: false}} name="Login" component={LoginScreen} />
-        <Stack.Screen options={{headerShown: false}} name="MainTabs" component={MainTabs} />
+        <Stack.Screen options={{ headerShown: false }} name="Home" component={HomeScreen} />
+        <Stack.Screen options={{ headerShown: false }} name="SignUp" component={SignUpScreen} />
+        <Stack.Screen options={{ headerShown: false }} name="Login" component={LoginScreen} />
+        <Stack.Screen options={{ headerShown: false }} name="MainTabs" component={MainTabs} />
       </Stack.Navigator>
-      <StatusBar style="auto" />
+      <StatusBar hidden={true} style="auto" /> 
     </NavigationContainer>
   );
 }
