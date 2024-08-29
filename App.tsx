@@ -42,7 +42,7 @@ function MainTabs() {
               case 'Tasks':
                 return focused ? 'checkbox' : 'checkbox-outline';
               case 'Balance':
-                return focused ? 'cash' : 'cash-outline';
+                return 'cash-outline';
               case 'Alerts':
                 return focused ? 'notifications' : 'notifications-outline';
               default:
