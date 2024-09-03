@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
 import { Theme } from '../../constants/Theme';
+import { Ionicons } from '@expo/vector-icons'; // Importe Ionicons
+
 
 interface Group {
   id: number;
@@ -28,9 +30,12 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={{flexDirection:'row',justifyContent: 'space-between', padding: 16, width: '100%', height: 55, backgroundColor: 'white'}}>
-        <Text style={{fontFamily: 'Poppins-Bold', color: Theme.TERTIARY}}>My groups</Text>
-        <Text>Criar Grupo</Text>
+      <View style={{flexDirection:'row',
+        justifyContent: 'space-between',alignItems:'center', padding: 16, width: '100%', height: 60, backgroundColor: Theme.TERTIARY}}>
+        <Text style={{fontFamily: 'Poppins-Bold', color: 'white'}}>My groups</Text>
+        <TouchableOpacity style={{alignItems: 'center', justifyContent: 'center'}}>
+          <Ionicons name="add" size={32} color="white" />      
+        </TouchableOpacity> 
         
       </View>
       <FlatList 
@@ -58,15 +63,12 @@ const styles = StyleSheet.create({
     group:{
       marginBottom:1,
       backgroundColor: Theme.SECONDARY,
-      width: 375,
-      margin: 5,
-      borderWidth: 2,
-      borderColor: Theme.TERTIARY,
-      borderRadius: 15,
+      width: 420,
+      margin: 1,
       alignItems: 'flex-start',
       padding: 16,
       justifyContent: 'center',
-      height: 75
+      height: 100
     },
     text:{
       fontFamily: 'Poppins-Regular',

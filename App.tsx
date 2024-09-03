@@ -15,6 +15,7 @@ import MoneyScreen from './src/Screens/MoneyScreen';
 import NotifyScreen from './src/Screens/NotifyScreen';
 import { Ionicons } from '@expo/vector-icons';
 import { Theme } from './constants/Theme';
+import { Platform, SafeAreaView } from 'react-native';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -94,13 +95,15 @@ export default function App() {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Home">
-        <Stack.Screen options={{ headerShown: false }} name="Home" component={HomeScreen} />
-        <Stack.Screen options={{ headerShown: false }} name="SignUp" component={SignUpScreen} />
-        <Stack.Screen options={{ headerShown: false }} name="Login" component={LoginScreen} />
-        <Stack.Screen options={{ headerShown: false }} name="MainTabs" component={MainTabs} />
-      </Stack.Navigator>
-      <StatusBar hidden={true} style="auto" /> 
+      <SafeAreaView style={{ flex: 1}}>
+        <Stack.Navigator initialRouteName="Home">
+          <Stack.Screen options={{ headerShown: false }} name="Home" component={HomeScreen} />
+          <Stack.Screen options={{ headerShown: false }} name="SignUp" component={SignUpScreen} />
+          <Stack.Screen options={{ headerShown: false }} name="Login" component={LoginScreen} />
+          <Stack.Screen options={{ headerShown: false }} name="MainTabs" component={MainTabs} />
+        </Stack.Navigator>
+      </SafeAreaView>
+      <StatusBar hidden={true} style="inverted" />
     </NavigationContainer>
   );
 }
