@@ -37,17 +37,17 @@ function MainTabs() {
           const iconName: keyof typeof Ionicons.glyphMap = (() => {
             switch (route.name) {
               case 'Groups':
-                return focused ? 'home' : 'home-outline';
+                return 'home-outline';
               case 'Profile':
-                return focused ? 'person' : 'person-outline';
+                return 'person-outline';
               case 'Tasks':
-                return focused ? 'checkbox' : 'checkbox-outline';
+                return 'checkbox-outline';
               case 'Balance':
                 return 'cash-outline';
               case 'Alerts':
-                return focused ? 'notifications' : 'notifications-outline';
+                return 'notifications-outline';
               default:
-                return focused ? 'help' : 'help-circle-outline';
+                return 'help-circle-outline';
             }
           })();
 

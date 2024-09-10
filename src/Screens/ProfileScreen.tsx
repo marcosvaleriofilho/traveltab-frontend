@@ -7,10 +7,7 @@ export default function ProfileScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.setting}>
-        <Text style={styles.text}>Your Profile</Text>
-      </View>
-      <View style={[{borderBottomWidth: 1, borderColor: Theme.INPUT } ,styles.setting]}>
-        <Text style={[styles.text, {fontFamily: 'Poppins-SemiBold', fontSize: 16}]}>Settings</Text>
+        <Text style={styles.text}>My Profile</Text>
       </View>
         <TouchableOpacity style={styles.button}>
             <Text style={styles.buttontext}>E-mail</Text>
@@ -20,6 +17,9 @@ export default function ProfileScreen() {
         </TouchableOpacity>
         <TouchableOpacity style={styles.button}>
           <Text style={styles.buttontext}>Change Password</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button}>
+          <Text style={styles.buttontext}>Phone</Text>
         </TouchableOpacity>
         <TouchableOpacity style={[styles.button,{justifyContent: 'center', borderBottomWidth: 0} ]}>
           <Text style={[styles.buttontext, {color: 'red', fontFamily: "Poppins-SemiBold"}]}>Log Out</Text>
@@ -32,31 +32,34 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        width: '100%',
+        alignSelf: 'center',
         justifyContent: 'center',
         alignItems: 'center',
-        position: 'relative',
+        position: 'absolute',
       },
     text: {
-        fontSize: 20,
+        fontSize: 18,
         fontFamily: 'Poppins-Bold',
-        color: Theme.TERTIARY
+        color: Theme.SECONDARY
     },
     setting: {
       flexDirection:'row',
       justifyContent: 'space-between',
-      top: 0,
       padding: 16,
       width: '100%',
       height: 60,
+      backgroundColor: Theme.TERTIARY
     },
     button: {
-      padding: 24,
+      padding: 20,
       flexDirection: 'row',
       justifyContent: 'flex-start',
       alignItems: 'center',
       width: '100%',
-      borderBottomWidth: 1,
-      borderColor: Theme.INPUT,
+      backgroundColor: Theme.SECONDARY,
+      marginBottom:1,
+      margin: 1
     },
     buttontext:{
       fontFamily: "Poppins-Regular",

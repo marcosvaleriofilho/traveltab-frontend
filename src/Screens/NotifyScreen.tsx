@@ -1,21 +1,90 @@
 // src/Screens/HomeTab.tsx
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { Theme } from '../../constants/Theme';
+
+interface Group {
+  id: number;
+  name: string;
+  description: string;
+  value: number;
+}
 
 export default function NotifyScreen() {
+
+  const [groups, setGroups] = useState<Group[]>([]);
+
+  useEffect(() => {
+    // Dados mockados
+    const mockGroups: Group[] = [
+      { id: 1, name: 'Pagamento recebido', description: 'Grupo 1', value: 400},
+      { id: 2, name: 'Dívida', description: 'Grupo 2', value: 0 },
+      { id: 3, name: 'A receber', description: 'Grupo 3', value: 0},
+    ];
+
+    // Simula uma chamada à API
+    setTimeout(() => {
+      setGroups(mockGroups);
+    }, 100); // Simula um delay de 1 segundo
+  }, []);
+
+
+
   return (
     <View style={styles.container}>
-      <Text>NotifyScreen</Text>
+      <View style={styles.setting}>
+        <Text style={styles.title}>My Alerts</Text>
+      </View>
+      <FlatList 
+        data={groups}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={({ item }) => (
+          <TouchableOpacity style={styles.group} onPress={() => {/* Navegar para GroupScreen */}}>
+            <Text style={styles.text}>{item.name}</Text>
+            <Text style={styles.text}>{item.description}</Text>
+            <Text style={styles.text}>R$ {item.value}</Text>
+          </TouchableOpacity>
+        )}
+      />  
     </View>
+    
   );
 }
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        position: 'relative',
+      flex: 1,
+      width: '100%',
+      alignSelf: 'center',
+      justifyContent: 'center',
+      alignItems: 'center',
+      position: 'absolute',
+    },  
+    title: {
+      fontSize: 18,
+      fontFamily: 'Poppins-Bold',
+      color: Theme.SECONDARY
     },
+    setting: {
+      flexDirection:'row',
+      justifyContent: 'space-between',
+      padding: 16,
+      width: '100%',
+      height: 60,
+      backgroundColor: Theme.TERTIARY
+    },
+    group:{
+      marginBottom:1,
+      backgroundColor: Theme.SECONDARY,
+      width: 420,
+      margin: 1,
+      alignItems: 'flex-start',
+      padding: 16,
+      justifyContent: 'center',
+      height: 100
+    },
+    text:{
+      fontFamily: 'Poppins-Regular',
+    }
 });
 

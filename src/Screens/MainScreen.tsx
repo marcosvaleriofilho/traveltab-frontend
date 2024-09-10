@@ -32,7 +32,7 @@ export default function HomeScreen() {
     <View style={styles.container}>
       <View style={{flexDirection:'row',
         justifyContent: 'space-between',alignItems:'center', padding: 16, width: '100%', height: 60, backgroundColor: Theme.TERTIARY}}>
-        <Text style={{fontFamily: 'Poppins-Bold', color: 'white'}}>My groups</Text>
+        <Text style={{fontFamily: 'Poppins-Bold', color: 'white', fontSize: 18}}>My groups</Text>
         <TouchableOpacity style={{alignItems: 'center', justifyContent: 'center'}}>
           <Ionicons name="add" size={32} color="white" />      
         </TouchableOpacity> 
