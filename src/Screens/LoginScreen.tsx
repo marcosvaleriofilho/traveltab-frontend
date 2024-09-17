@@ -15,7 +15,8 @@ export default function LoginScreen() {
     const handleLogin = () => {
         console.log('Login pressed');
         navigation.navigate('MainTabs');
-      };
+    };
+
     return (
         <View style={styles.container}>
             <Image
@@ -27,12 +28,11 @@ export default function LoginScreen() {
                     style={styles.logo}
                     source={require('../../assets/logo.png')}
                 />
-                <Text style={[styles.text, { fontFamily: 'Poppins-Bold', marginBottom: 30 }]}>TravelTab</Text>
-                <Text style={[styles.text, { fontFamily: 'Poppins-Regular', marginBottom: 30 }]}>Start your journey,{`\n`}we'll handle the rest.</Text>
-
+                <Text style={styles.titleBold}>TravelTab</Text>
+                <Text style={styles.subTitle}>Start your journey,{`\n`}we'll handle the rest.</Text>
 
                 <View style={styles.formContainer}>
-                    <Text style={[styles.text, {fontSize: 30, color: Theme.TERTIARY, marginBottom: 20 , fontFamily: 'Poppins-Bold' }]}>Login</Text>
+                    <Text style={styles.loginText}>Login</Text>
 
                     <CustomInput
                         label="E-mail"
@@ -76,15 +76,24 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         width: '100%',
         position: 'absolute',
-        bottom: 0
+        bottom: 0,
     },
     logo: {
         marginBottom: 10,
     },
-    text: {
+    titleBold: {
+        fontFamily: 'Poppins-Bold',
         fontSize: 24,
         color: 'white',
         textAlign: 'center',
+        marginBottom: 30,
+    },
+    subTitle: {
+        fontFamily: 'Poppins-Regular',
+        fontSize: 24,
+        color: 'white',
+        textAlign: 'center',
+        marginBottom: 30,
     },
     formContainer: {
         width: '100%',
@@ -94,5 +103,11 @@ const styles = StyleSheet.create({
         borderTopRightRadius: 20,
         borderTopLeftRadius: 20,
         height: 400,
+    },
+    loginText: {
+        fontSize: 30,
+        color: Theme.TERTIARY,
+        marginBottom: 20,
+        fontFamily: 'Poppins-Bold',
     },
 });

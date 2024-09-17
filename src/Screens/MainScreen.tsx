@@ -30,48 +30,65 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={{flexDirection:'row',
-        justifyContent: 'space-between',alignItems:'center', padding: 16, width: '100%', height: 60, backgroundColor: Theme.TERTIARY}}>
-        <Text style={{fontFamily: 'Poppins-Bold', color: 'white', fontSize: 18}}>My groups</Text>
-        <TouchableOpacity style={{alignItems: 'center', justifyContent: 'center'}}>
-          <Ionicons name="add" size={32} color="white" />      
-        </TouchableOpacity> 
-        
+      <View style={styles.setting}>
+        <Text style={styles.title}>My groups</Text>
+        <TouchableOpacity style={{ alignItems: 'center', justifyContent: 'center' }}>
+          <Ionicons name="add" size={32} color="white" />
+        </TouchableOpacity>
+
       </View>
-      <FlatList 
-        data={groups}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <TouchableOpacity style={styles.group} onPress={() => {/* Navegar para GroupScreen */}}>
-            <Text style={styles.text}>{item.name}</Text>
-            <Text style={styles.text}>{item.description}</Text>
-          </TouchableOpacity>
-        )}
-      />
+      <View style={{ width: '100%', flex: 1 }}>
+        <FlatList
+          data={groups}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => (
+            <TouchableOpacity style={styles.group} onPress={() => {/* Navegar para GroupScreen */ }}>
+              <Text style={styles.text}>{item.name}</Text>
+              <Text style={styles.text}>{item.description}</Text>
+            </TouchableOpacity>
+          )}
+        />
+      </View>
     </View>
   );
 }
 
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        position: 'relative',
-    },
-    group:{
-      marginBottom:1,
-      backgroundColor: Theme.SECONDARY,
-      width: 420,
-      margin: 1,
-      alignItems: 'flex-start',
-      padding: 16,
-      justifyContent: 'center',
-      height: 100
-    },
-    text:{
-      fontFamily: 'Poppins-Regular',
-    }
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  group: {
+    marginBottom: 1,
+    backgroundColor: Theme.SECONDARY,
+    
+    width: '99%',
+    margin: 1,
+    alignSelf: 'center',
+    alignItems: 'flex-start',
+    padding: 16,
+    justifyContent: 'center',
+    height: 100
+  },
+  text: {
+    fontFamily: 'Poppins-Regular',
+  },
+  setting: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    width: '100%',
+    height: 60,
+    backgroundColor: Theme.TERTIARY
+  },
+  title: {
+    fontSize: 18,
+    fontFamily: 'Poppins-Bold',
+    color: Theme.SECONDARY
+  },
 });
 

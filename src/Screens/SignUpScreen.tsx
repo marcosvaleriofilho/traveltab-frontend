@@ -4,7 +4,7 @@ import CustomButton from '../Components/CustomButton';
 import { Theme } from '../../constants/Theme';
 import { CustomInput } from '../Components/CustomInput';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
-import { RootStackParamList } from '../../App'; // Agora deve funcionar corretamente
+import { RootStackParamList } from '../../App'; 
 
 export default function SignUpScreen() {
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -30,10 +30,10 @@ export default function SignUpScreen() {
                     style={styles.logo}
                     source={require('../../assets/logo.png')}
                 />
-                <Text style={[styles.text, { fontFamily: 'Poppins-Bold', marginBottom: 30 }]}>TravelTab</Text>
+                <Text style={styles.title}>TravelTab</Text>
 
                 <View style={styles.formContainer}>
-                    <Text style={[styles.text, { fontSize:30, color: Theme.TERTIARY, fontFamily: 'Poppins-Bold' }]}>Sign Up</Text>
+                    <Text style={styles.signUpText}>Sign Up</Text>
 
                     <CustomInput
                         label="Name"
@@ -86,15 +86,23 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         width: '100%',
         position: 'absolute',
-        bottom: 0
+        bottom: 0,
     },
     logo: {
         marginBottom: 10,
     },
-    text: {
+    title: {
+        fontFamily: 'Poppins-Bold',
         fontSize: 24,
         color: 'white',
         textAlign: 'center',
+        marginBottom: 30,
+    },
+    signUpText: {
+        fontSize: 30,
+        color: Theme.TERTIARY,
+        fontFamily: 'Poppins-Bold',
+        marginBottom: 20,
     },
     formContainer: {
         width: '100%',

@@ -6,7 +6,8 @@ const COLORS = {
     TERTIARY: "#082A64",
 
     INPUT: "#E2E2E2",
-    
+
+    PASTEL: "#D0D8E9"
 
   };
   
