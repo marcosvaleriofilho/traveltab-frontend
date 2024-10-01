@@ -13,7 +13,8 @@ export type CustomInputProps = {
     label?: string;
     value?: string;
     onChange?: (text: string) => void;
-    type?: TextInputProps['keyboardType']; 
+    type?: TextInputProps['keyboardType'];
+    secureTextEntry?: boolean; // Tornando secureTextEntry opcional
 };
 
 export const CustomInput: React.FC<CustomInputProps> = ({
@@ -21,6 +22,7 @@ export const CustomInput: React.FC<CustomInputProps> = ({
     value,
     onChange = () => {},
     type = 'default',
+    secureTextEntry = false, // Definindo valor padrão como false
     ...props
 }) => {
     const [isFocused, setIsFocused] = useState(false);
@@ -46,6 +48,7 @@ export const CustomInput: React.FC<CustomInputProps> = ({
                     value={value}
                     keyboardType={type}
                     onChangeText={(text) => onChange(text)}
+                    secureTextEntry={secureTextEntry} // Adicionando secureTextEntry aqui
                     onBlur={() => setIsFocused(false)}
                     onFocus={() => setIsFocused(true)}
                     style={styles.input}

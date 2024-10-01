@@ -15,42 +15,42 @@ interface PaymentHistory {
 
 // Dados simulados para o histórico de pagamentos
 const paymentHistory: PaymentHistory[] = [
-  {
-    id: 1,
-    description: 'Supermercado',
-    amount: -150.75,
-    date: '12/09/2024',
-  },
-  {
-    id: 2,
-    description: 'Salário',
-    amount: 3000,
-    date: '10/09/2024',
-  },
-  {
-    id: 3,
-    description: 'Netflix',
-    amount: -30,
-    date: '05/09/2024',
-  },
-  {
-    id: 6,
-    description: 'Netflix',
-    amount: -30,
-    date: '05/09/2024',
-  },
-  {
-    id: 5,
-    description: 'Netflix',
-    amount: -30,
-    date: '05/09/2024',
-  },
-  {
-    id: 4,
-    description: 'Netflix',
-    amount: -30,
-    date: '05/09/2024',
-  },
+  // {
+  //   id: 1,
+  //   description: 'Supermercado',
+  //   amount: -150.75,
+  //   date: '12/09/2024',
+  // },
+  // {
+  //   id: 2,
+  //   description: 'Salário',
+  //   amount: 3000,
+  //   date: '10/09/2024',
+  // },
+  // {
+  //   id: 3,
+  //   description: 'Netflix',
+  //   amount: -30,
+  //   date: '05/09/2024',
+  // },
+  // {
+  //   id: 6,
+  //   description: 'Netflix',
+  //   amount: -30,
+  //   date: '05/09/2024',
+  // },
+  // {
+  //   id: 5,
+  //   description: 'Netflix',
+  //   amount: -30,
+  //   date: '05/09/2024',
+  // },
+  // {
+  //   id: 4,
+  //   description: 'Netflix',
+  //   amount: -30,
+  //   date: '05/09/2024',
+  // },
 ];
 
 export default function MoneyScreen() {

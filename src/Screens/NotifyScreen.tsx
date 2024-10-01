@@ -17,9 +17,9 @@ export default function NotifyScreen() {
   useEffect(() => {
     // Dados mockados
     const mockGroups: Group[] = [
-      { id: 1, name: 'Pagamento recebido', description: 'Grupo 1', value: 400 },
-      { id: 2, name: 'Dívida', description: 'Grupo 2', value: 0 },
-      { id: 3, name: 'A receber', description: 'Grupo 3', value: 0 },
+      // { id: 1, name: 'Pagamento recebido', description: 'Grupo 1', value: 400 },
+      // { id: 2, name: 'Dívida', description: 'Grupo 2', value: 0 },
+      // { id: 3, name: 'A receber', description: 'Grupo 3', value: 0 },
     ];
 
     // Simula uma chamada à API

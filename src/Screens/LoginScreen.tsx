@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, Image } from 'react-native';
+import { StyleSheet, Text, View, Image, Alert } from 'react-native';
 import CustomButton from '../Components/CustomButton';
 import { Theme } from '../../constants/Theme';
 import { CustomInput } from '../Components/CustomInput';
@@ -11,11 +11,51 @@ export default function LoginScreen() {
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
 
-    const handleLogin = () => {
-        console.log('Login pressed');
-        navigation.navigate('MainTabs');
+    const handleLogin = async () => {
+        setLoading(true);
+        try {
+            const response = await fetch('http://192.168.1.7:8080/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: email,
+                    password: password,
+                }),
+            });
+    
+            // Verificar se o conteúdo da resposta é JSON antes de tentar fazer o parsing
+            const contentType = response.headers.get('content-type');
+            let data;
+    
+            if (response.ok) {
+                if (contentType && contentType.includes('application/json')) {
+                    data = await response.json();
+                } else {
+                    Alert.alert('Erro', 'Resposta inesperada do servidor.');
+                    return;
+                }
+                console.log('Login bem-sucedido!', data);
+                navigation.navigate('MainTabs');
+            } else if (response.status === 400) {
+                // Exibir uma mensagem de erro para credenciais inválidas
+                Alert.alert('Erro', 'Credenciais inválidas. Verifique seu e-mail ou senha.');
+            } else {
+                const errorData = contentType && contentType.includes('application/json') ? await response.json() : null;
+                Alert.alert('Erro', errorData?.message || 'Ocorreu um erro no servidor.');
+            }
+        } catch (error) {
+            console.error('Erro na requisição:', error);
+            Alert.alert('Erro', 'Não foi possível conectar ao servidor. Verifique sua conexão.');
+        } finally {
+            setLoading(false);
+        }
     };
+    
+    
 
     return (
         <View style={styles.container}>
@@ -43,14 +83,16 @@ export default function LoginScreen() {
                         label="Password"
                         value={password}
                         onChange={setPassword}
+                        secureTextEntry={true}
                     />
 
                     <CustomButton
                         borderColor={Theme.TERTIARY}
-                        title="Login"
+                        title={loading ? 'Loading...' : 'Login'}
                         textColor='white'
                         color={Theme.TERTIARY}
                         onPress={handleLogin}
+                        disabled={loading}
                     />
                 </View>
             </View>

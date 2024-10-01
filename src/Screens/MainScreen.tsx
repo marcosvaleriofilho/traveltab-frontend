@@ -17,9 +17,9 @@ export default function HomeScreen() {
   useEffect(() => {
     // Dados mockados
     const mockGroups: Group[] = [
-      { id: 1, name: 'Grupo de Viagem 1', description: 'Viagem para a praia' },
-      { id: 2, name: 'Grupo de Viagem 2', description: 'Viagem para as montanhas' },
-      { id: 3, name: 'Grupo de Viagem 3', description: 'Viagem para o exterior' },
+      // { id: 1, name: 'Grupo de Viagem 1', description: 'Viagem para a praia' },
+      // { id: 2, name: 'Grupo de Viagem 2', description: 'Viagem para as montanhas' },
+      // { id: 3, name: 'Grupo de Viagem 3', description: 'Viagem para o exterior' },
     ];
 
     // Simula uma chamada à API

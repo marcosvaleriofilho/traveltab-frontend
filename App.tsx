@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
-import { StatusBar } from 'expo-status-bar';
+import React, { useEffect } from 'react';
+import { StatusBar, BackHandler, Alert } from 'react-native';
 import * as SplashScreen from 'expo-splash-screen';
 import { useFonts } from 'expo-font';
 import { NavigationContainer } from '@react-navigation/native';
@@ -30,11 +30,32 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator();
 
 function MainTabs() {
+  useEffect(() => {
+    const backAction = () => {
+      Alert.alert('Sair', 'Você deseja sair do aplicativo?', [
+        {
+          text: 'Cancelar',
+          onPress: () => null,
+          style: 'cancel',
+        },
+        { text: 'SIM', onPress: () => BackHandler.exitApp() },
+      ]);
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction
+    );
+
+    return () => backHandler.remove();
+  }, []);
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
-        tabBarIcon: ({ color, size, focused }) => {
-          const iconName: keyof typeof Ionicons.glyphMap = (() => {
+        tabBarIcon: ({ color, size }) => {
+          const iconName = (() => {
             switch (route.name) {
               case 'Groups':
                 return 'home-outline';
@@ -50,7 +71,6 @@ function MainTabs() {
                 return 'help-circle-outline';
             }
           })();
-
           return <Ionicons name={iconName} size={size} color={color} />;
         },
         tabBarActiveTintColor: Theme.TERTIARY,
@@ -63,7 +83,7 @@ function MainTabs() {
           height: 60,
           paddingTop: 10,
         },
-        headerShown: false
+        headerShown: false,
       })}
     >
       <Tab.Screen name="Tasks" component={TasksScreen} />
@@ -95,15 +115,31 @@ export default function App() {
 
   return (
     <NavigationContainer>
-      <SafeAreaView style={{ flex: 1}}>
+      <SafeAreaView style={{ flex: 1 }}>
         <Stack.Navigator initialRouteName="Home">
-          <Stack.Screen options={{ headerShown: false }} name="Home" component={HomeScreen} />
-          <Stack.Screen options={{ headerShown: false }} name="SignUp" component={SignUpScreen} />
-          <Stack.Screen options={{ headerShown: false }} name="Login" component={LoginScreen} />
-          <Stack.Screen options={{ headerShown: false }} name="MainTabs" component={MainTabs} />
+          <Stack.Screen
+            options={{ headerShown: false }}
+            name="Home"
+            component={HomeScreen}
+          />
+          <Stack.Screen
+            options={{ headerShown: false }}
+            name="SignUp"
+            component={SignUpScreen}
+          />
+          <Stack.Screen
+            options={{ headerShown: false }}
+            name="Login"
+            component={LoginScreen}
+          />
+          <Stack.Screen
+            options={{ headerShown: false }}
+            name="MainTabs"
+            component={MainTabs}
+          />
         </Stack.Navigator>
       </SafeAreaView>
-      <StatusBar hidden={true} style="inverted" />
+      <StatusBar hidden={true}  />
     </NavigationContainer>
   );
 }

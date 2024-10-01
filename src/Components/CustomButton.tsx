@@ -7,6 +7,7 @@ interface CustomButtonProps {
     color?: string; // Cor de fundo do botão
     textColor?: string; // Cor do texto
     borderColor?: string; // Cor da borda
+    disabled?: boolean; // Propriedade para desabilitar o botão
 }
 
 const CustomButton: React.FC<CustomButtonProps> = ({
@@ -14,12 +15,18 @@ const CustomButton: React.FC<CustomButtonProps> = ({
     title,
     color = '#2196F3',
     textColor = 'white',
-    borderColor = 'white' // Cor da borda padrão
+    borderColor = 'white',
+    disabled = false, // Definindo valor padrão como false
 }) => {
     return (
         <TouchableOpacity 
-            style={[styles.button, { backgroundColor: color, borderColor: borderColor }]} 
+            style={[
+                styles.button, 
+                { backgroundColor: color, borderColor: borderColor },
+                disabled && styles.disabledButton // Aplica estilo de desativado se o botão estiver desativado
+            ]}
             onPress={onPress}
+            disabled={disabled} // Adicionando funcionalidade de desativado
         >
             <Text style={[styles.buttonText, { color: textColor }]}>{title}</Text> 
         </TouchableOpacity>
@@ -39,6 +46,9 @@ const styles = StyleSheet.create({
     buttonText: {
         fontSize: 20,
         fontFamily: "Poppins-Bold"
+    },
+    disabledButton: {
+        opacity: 0.5, // Botão fica mais transparente quando desativado
     },
 });
 
