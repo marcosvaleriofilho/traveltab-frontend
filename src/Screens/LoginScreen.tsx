@@ -5,6 +5,7 @@ import { Theme } from '../../constants/Theme';
 import { CustomInput } from '../Components/CustomInput';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { RootStackParamList } from '../../App';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function LoginScreen() {
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -26,11 +27,10 @@ export default function LoginScreen() {
                     password: password,
                 }),
             });
-    
-            // Verificar se o conteúdo da resposta é JSON antes de tentar fazer o parsing
+
             const contentType = response.headers.get('content-type');
             let data;
-    
+
             if (response.ok) {
                 if (contentType && contentType.includes('application/json')) {
                     data = await response.json();
@@ -38,10 +38,19 @@ export default function LoginScreen() {
                     Alert.alert('Erro', 'Resposta inesperada do servidor.');
                     return;
                 }
+
+                // Verificar se o token e os dados do usuário existem antes de salvar
+                if (data.token) {
+                    await AsyncStorage.setItem('authToken', data.token);
+                }
+                
+                if (data.user) {
+                    await AsyncStorage.setItem('userData', JSON.stringify(data.user));
+                }
+
                 console.log('Login bem-sucedido!', data);
                 navigation.navigate('MainTabs');
             } else if (response.status === 400) {
-                // Exibir uma mensagem de erro para credenciais inválidas
                 Alert.alert('Erro', 'Credenciais inválidas. Verifique seu e-mail ou senha.');
             } else {
                 const errorData = contentType && contentType.includes('application/json') ? await response.json() : null;
@@ -54,8 +63,6 @@ export default function LoginScreen() {
             setLoading(false);
         }
     };
-    
-    
 
     return (
         <View style={styles.container}>

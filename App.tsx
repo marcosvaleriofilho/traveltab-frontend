@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { StatusBar, BackHandler, Alert } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StatusBar, SafeAreaView } from 'react-native';
 import * as SplashScreen from 'expo-splash-screen';
 import { useFonts } from 'expo-font';
 import { NavigationContainer } from '@react-navigation/native';
@@ -15,7 +15,7 @@ import MoneyScreen from './src/Screens/MoneyScreen';
 import NotifyScreen from './src/Screens/NotifyScreen';
 import { Ionicons } from '@expo/vector-icons';
 import { Theme } from './constants/Theme';
-import { Platform, SafeAreaView } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -30,27 +30,6 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator();
 
 function MainTabs() {
-  useEffect(() => {
-    const backAction = () => {
-      Alert.alert('Sair', 'Você deseja sair do aplicativo?', [
-        {
-          text: 'Cancelar',
-          onPress: () => null,
-          style: 'cancel',
-        },
-        { text: 'SIM', onPress: () => BackHandler.exitApp() },
-      ]);
-      return true;
-    };
-
-    const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      backAction
-    );
-
-    return () => backHandler.remove();
-  }, []);
-
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -96,6 +75,7 @@ function MainTabs() {
 }
 
 export default function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [fontsLoaded, error] = useFonts({
     'Poppins-Bold': require('./assets/fonts/Poppins-Bold.ttf'),
     'Poppins-Regular': require('./assets/fonts/Poppins-Regular.ttf'),
@@ -104,6 +84,16 @@ export default function App() {
   });
 
   useEffect(() => {
+    const checkToken = async () => {
+      const token = await AsyncStorage.getItem('authToken');
+      if (token) {
+        setIsAuthenticated(true);
+      } else {
+        setIsAuthenticated(false);
+      }
+    };
+
+    checkToken();
     if (fontsLoaded || error) {
       SplashScreen.hideAsync();
     }
@@ -116,7 +106,7 @@ export default function App() {
   return (
     <NavigationContainer>
       <SafeAreaView style={{ flex: 1 }}>
-        <Stack.Navigator initialRouteName="Home">
+        <Stack.Navigator initialRouteName={isAuthenticated ? "MainTabs" : "Home"}>
           <Stack.Screen
             options={{ headerShown: false }}
             name="Home"
@@ -139,7 +129,7 @@ export default function App() {
           />
         </Stack.Navigator>
       </SafeAreaView>
-      <StatusBar hidden={true}  />
+      <StatusBar hidden={true} />
     </NavigationContainer>
   );
 }

@@ -2,7 +2,8 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { Theme } from '../../constants/Theme';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
-import { RootStackParamList } from '../../App'; // Certifique-se de ajustar o caminho para o seu projeto
+import { RootStackParamList } from '../../App'; 
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Importar AsyncStorage
 
 export default function ProfileScreen() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -20,9 +21,14 @@ export default function ProfileScreen() {
         },
         {
           text: 'Sair',
-          onPress: () => {
-            // Limpa o token ou estado de autenticação (se houver)
-            // Exemplo: AsyncStorage.removeItem('token');
+          onPress: async () => {
+            // Limpa o token e os dados de usuário do AsyncStorage
+            try {
+              await AsyncStorage.removeItem('authToken');
+              await AsyncStorage.removeItem('userData');
+            } catch (error) {
+              console.error('Erro ao limpar AsyncStorage:', error);
+            }
             
             // Redefine a navegação para a tela de Login
             navigation.reset({
