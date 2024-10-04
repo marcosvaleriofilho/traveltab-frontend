@@ -34,18 +34,28 @@ export default function LoginScreen() {
             if (response.ok) {
                 if (contentType && contentType.includes('application/json')) {
                     data = await response.json();
+                    console.log('Dados recebidos do servidor:', data);
                 } else {
                     Alert.alert('Erro', 'Resposta inesperada do servidor.');
                     return;
                 }
 
-                // Verificar se o token e os dados do usuário existem antes de salvar
-                if (data.token) {
+                if (data.token && data.name) {
+                    // Armazena o token e o nome do usuário no AsyncStorage
                     await AsyncStorage.setItem('authToken', data.token);
-                }
-                
-                if (data.user) {
-                    await AsyncStorage.setItem('userData', JSON.stringify(data.user));
+                    await AsyncStorage.setItem('userEmail', email); // Usa o email diretamente
+
+                    console.log('Token e email salvos com sucesso no AsyncStorage');
+
+                    // Verifica se o email foi salvo corretamente
+                    const savedEmail = await AsyncStorage.getItem('userEmail');
+                    console.log('Email salvo no AsyncStorage:', savedEmail);
+
+                    if (savedEmail === null) {
+                        Alert.alert('Erro', 'Não foi possível salvar o email no AsyncStorage.');
+                    }
+                } else {
+                    Alert.alert('Erro', 'Falha ao receber o token ou informações do usuário.');
                 }
 
                 console.log('Login bem-sucedido!', data);

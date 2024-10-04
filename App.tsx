@@ -13,6 +13,7 @@ import ProfileScreen from './src/Screens/ProfileScreen';
 import TasksScreen from './src/Screens/TasksScreen';
 import MoneyScreen from './src/Screens/MoneyScreen';
 import NotifyScreen from './src/Screens/NotifyScreen';
+import CreateGroupScreen from './src/Screens/CreateGroupScreen'; // Importação da nova tela
 import { Ionicons } from '@expo/vector-icons';
 import { Theme } from './constants/Theme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -24,6 +25,7 @@ export type RootStackParamList = {
   Home: undefined;
   Login: undefined;
   MainTabs: undefined;
+  CreateGroupScreen: undefined; // Adição da nova rota
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -126,6 +128,11 @@ export default function App() {
             options={{ headerShown: false }}
             name="MainTabs"
             component={MainTabs}
+          />
+          <Stack.Screen
+            name="CreateGroupScreen" // Adiciona a rota para criar grupos
+            component={CreateGroupScreen}
+            options={{ title: 'Criar Grupo' }}
           />
         </Stack.Navigator>
       </SafeAreaView>

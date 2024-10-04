@@ -1,58 +1,95 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { Theme } from '../../constants/Theme';
-import { Ionicons } from '@expo/vector-icons'; // Importe Ionicons
-
+import { Ionicons } from '@expo/vector-icons';
+import { useNavigation, NavigationProp, useFocusEffect } from '@react-navigation/native'; // Importe NavigationProp
+import { RootStackParamList } from '../../App'; // Importe o tipo RootStackParamList
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface Group {
-  id: number;
-  name: string;
+  id: string;
+  nameGroup: string;
   description: string;
 }
 
-export default function HomeScreen() {
-  // Especifica o tipo de estado como um array de objetos 'Grupo'
+export default function MainScreen() {
   const [groups, setGroups] = useState<Group[]>([]);
+  const [loading, setLoading] = useState(false); // Adicionando um estado de carregamento
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>(); // Tipagem correta do useNavigation
 
-  useEffect(() => {
-    // Dados mockados
-    const mockGroups: Group[] = [
-      // { id: 1, name: 'Grupo de Viagem 1', description: 'Viagem para a praia' },
-      // { id: 2, name: 'Grupo de Viagem 2', description: 'Viagem para as montanhas' },
-      // { id: 3, name: 'Grupo de Viagem 3', description: 'Viagem para o exterior' },
-    ];
+  // Função para buscar os grupos do usuário logado
+  const fetchGroups = async () => {
+    try {
+      const userEmail = await AsyncStorage.getItem('userEmail'); // Recupera o e-mail do usuário logado
 
-    // Simula uma chamada à API
-    setTimeout(() => {
-      setGroups(mockGroups);
-    }, 100); // Simula um delay de 1 segundo
-  }, []);
+      if (!userEmail) {
+        Alert.alert('Erro', 'Não foi possível obter o email do usuário.');
+        return;
+      }
+
+      setLoading(true); // Ativa o estado de carregamento
+
+      const response = await fetch(`http://10.0.2.2:8080/groups/byEmail?email=${userEmail}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const fetchedGroups = await response.json();
+        setGroups(fetchedGroups);
+        console.log('Grupos recebidos do servidor:', fetchedGroups);
+      } else {
+        console.error('Erro ao buscar grupos do servidor:', await response.text());
+        Alert.alert('Erro', 'Falha ao buscar os grupos do usuário.');
+      }
+    } catch (error) {
+      console.error('Erro ao buscar grupos do servidor:', error);
+      Alert.alert('Erro', `Falha ao buscar os grupos do usuário. Detalhe do erro: ${error}`);
+    } finally {
+      setLoading(false); // Desativa o estado de carregamento
+    }
+  };
+
+  // Usa o useFocusEffect para buscar os grupos sempre que a tela for focada
+  useFocusEffect(
+    useCallback(() => {
+      fetchGroups(); // Busca os grupos quando a tela ganha o foco
+    }, [])
+  );
 
   return (
     <View style={styles.container}>
       <View style={styles.setting}>
-        <Text style={styles.title}>My groups</Text>
-        <TouchableOpacity style={{ alignItems: 'center', justifyContent: 'center' }}>
+        <Text style={styles.title}>Meus grupos</Text>
+        <TouchableOpacity
+          style={{ alignItems: 'center', justifyContent: 'center' }}
+          onPress={() => navigation.navigate('CreateGroupScreen')} // Navegação para a tela de criação do grupo
+        >
           <Ionicons name="add" size={32} color="white" />
         </TouchableOpacity>
-
       </View>
+
       <View style={{ width: '100%', flex: 1 }}>
-        <FlatList
-          data={groups}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => (
-            <TouchableOpacity style={styles.group} onPress={() => {/* Navegar para GroupScreen */ }}>
-              <Text style={styles.text}>{item.name}</Text>
-              <Text style={styles.text}>{item.description}</Text>
-            </TouchableOpacity>
-          )}
-        />
+        {loading ? ( // Exibe um texto de carregamento enquanto busca os grupos
+          <Text style={styles.loadingText}>Carregando...</Text>
+        ) : (
+          <FlatList
+            data={groups}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({ item }) => (
+              <TouchableOpacity style={styles.group}>
+                <Text style={styles.text}>{item.nameGroup}</Text>
+                <Text style={styles.text}>{item.description}</Text>
+              </TouchableOpacity>
+            )}
+          />
+        )}
       </View>
     </View>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {
@@ -64,14 +101,13 @@ const styles = StyleSheet.create({
   group: {
     marginBottom: 1,
     backgroundColor: Theme.SECONDARY,
-    
     width: '99%',
     margin: 1,
     alignSelf: 'center',
     alignItems: 'flex-start',
     padding: 16,
     justifyContent: 'center',
-    height: 100
+    height: 100,
   },
   text: {
     fontFamily: 'Poppins-Regular',
@@ -83,12 +119,17 @@ const styles = StyleSheet.create({
     padding: 16,
     width: '100%',
     height: 60,
-    backgroundColor: Theme.TERTIARY
+    backgroundColor: Theme.TERTIARY,
   },
   title: {
     fontSize: 18,
     fontFamily: 'Poppins-Bold',
-    color: Theme.SECONDARY
+    color: Theme.SECONDARY,
+  },
+  loadingText: {
+    fontSize: 18,
+    fontFamily: 'Poppins-Regular',
+    textAlign: 'center',
+    marginTop: 20,
   },
 });
-
