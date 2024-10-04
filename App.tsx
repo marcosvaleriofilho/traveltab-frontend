@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StatusBar, SafeAreaView } from 'react-native';
+import { StatusBar, SafeAreaView, TouchableOpacity } from 'react-native';
 import * as SplashScreen from 'expo-splash-screen';
 import { useFonts } from 'expo-font';
 import { NavigationContainer } from '@react-navigation/native';
@@ -130,10 +130,28 @@ export default function App() {
             component={MainTabs}
           />
           <Stack.Screen
-            name="CreateGroupScreen" // Adiciona a rota para criar grupos
+            name="CreateGroupScreen"
             component={CreateGroupScreen}
-            options={{ title: 'Criar Grupo' }}
+            options={({ navigation }) => ({
+              title: 'Criar Grupo',
+              headerStyle: {
+                backgroundColor: Theme.TERTIARY
+              },
+              headerTintColor: '#fff', // Cor do texto e ícones no header
+              headerTitleStyle: {
+                fontWeight: 'bold',
+                fontFamily: 'Poppins-Bold',
+              },
+              // Adiciona o ícone de check no header
+              headerRight: () => (
+                <TouchableOpacity onPress={() => navigation.getParam('handleCreateGroup')()}>
+                  <Ionicons name="checkmark" size={24} color="white" style={{ marginRight: 10 }} />
+                </TouchableOpacity>
+              ),
+            })}
           />
+
+
         </Stack.Navigator>
       </SafeAreaView>
       <StatusBar hidden={true} />

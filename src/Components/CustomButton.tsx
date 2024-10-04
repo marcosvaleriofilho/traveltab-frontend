@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, GestureResponderEvent } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet, GestureResponderEvent, TextStyle } from 'react-native';
 
 interface CustomButtonProps {
     onPress: (event: GestureResponderEvent) => void;
@@ -8,6 +8,7 @@ interface CustomButtonProps {
     textColor?: string; // Cor do texto
     borderColor?: string; // Cor da borda
     disabled?: boolean; // Propriedade para desabilitar o botão
+    textStyle?: TextStyle; // Novo: Estilo customizado para o texto
 }
 
 const CustomButton: React.FC<CustomButtonProps> = ({
@@ -17,6 +18,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
     textColor = 'white',
     borderColor = 'white',
     disabled = false, // Definindo valor padrão como false
+    textStyle, // Novo: Permitir estilo customizado para o texto
 }) => {
     return (
         <TouchableOpacity 
@@ -28,14 +30,13 @@ const CustomButton: React.FC<CustomButtonProps> = ({
             onPress={onPress}
             disabled={disabled} // Adicionando funcionalidade de desativado
         >
-            <Text style={[styles.buttonText, { color: textColor }]}>{title}</Text> 
+            <Text style={[styles.buttonText, { color: textColor }, textStyle]}>{title}</Text> 
         </TouchableOpacity>
     );
 }
 
 const styles = StyleSheet.create({
     button: {
-        marginTop: 20,
         width: 350,
         height: 50,
         borderRadius: 12,

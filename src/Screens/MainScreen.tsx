@@ -39,7 +39,6 @@ export default function MainScreen() {
       if (response.ok) {
         const fetchedGroups = await response.json();
         setGroups(fetchedGroups);
-        console.log('Grupos recebidos do servidor:', fetchedGroups);
       } else {
         console.error('Erro ao buscar grupos do servidor:', await response.text());
         Alert.alert('Erro', 'Falha ao buscar os grupos do usuário.');
