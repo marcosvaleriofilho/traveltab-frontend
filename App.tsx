@@ -17,6 +17,7 @@ import CreateGroupScreen from './src/Screens/CreateGroupScreen'; // Importação
 import { Ionicons } from '@expo/vector-icons';
 import { Theme } from './constants/Theme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import GroupDetailScreen from './src/Screens/GroupDetailScreen';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -25,8 +26,10 @@ export type RootStackParamList = {
   Home: undefined;
   Login: undefined;
   MainTabs: undefined;
-  CreateGroupScreen: undefined; // Adição da nova rota
+  CreateGroupScreen: undefined;
+  GroupDetailScreen: { groupId: string }; // Adiciona a nova tela com o parâmetro groupId
 };
+
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator();
@@ -149,6 +152,21 @@ export default function App() {
                 </TouchableOpacity>
               ),
             })}
+          />
+          <Stack.Screen
+            name="GroupDetailScreen" // Adicione aqui a nova tela
+            component={GroupDetailScreen}
+            options={{
+              title: 'Detalhes do Grupo',
+              headerStyle: {
+                backgroundColor: Theme.TERTIARY,
+              },
+              headerTintColor: '#fff',
+              headerTitleStyle: {
+                fontWeight: 'bold',
+                fontFamily: 'Poppins-Bold',
+              },
+            }}
           />
 
 

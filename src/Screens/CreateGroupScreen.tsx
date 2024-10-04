@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react';
-import { View, Text, TextInput, StyleSheet, Alert, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Alert, FlatList, TouchableOpacity } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { GroupType } from '../../constants/enums';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -16,7 +16,7 @@ export default function CreateGroupScreen() {
     const [endDate, setEndDate] = useState<Date | undefined>(undefined);
     const [showStartPicker, setShowStartPicker] = useState(false);
     const [showEndPicker, setShowEndPicker] = useState(false);
-    const [members, setMembers] = useState<{ id: string; email: string }[]>([]); // Modificado para armazenar email também
+    const [members, setMembers] = useState<{ id: string; email: string }[]>([]);
     const [newMemberEmail, setNewMemberEmail] = useState('');
     const [userEmail, setUserEmail] = useState<string | null>(null);
     const navigation = useNavigation();
@@ -53,17 +53,13 @@ export default function CreateGroupScreen() {
         }
     };
 
-
-
     const addMemberByEmail = async (email: string) => {
-        // Verifica se o email já foi adicionado à lista de membros
         const emailExists = members.some((member) => member.email === email);
         if (emailExists) {
             Alert.alert('Atenção', 'Este e-mail já foi adicionado ao grupo.');
             return;
         }
 
-        // Verifica se o email é o mesmo do usuário logado e evita a adição
         if (email === userEmail) {
             Alert.alert('Atenção', 'Você já está incluído no grupo automaticamente.');
             return;
@@ -80,7 +76,7 @@ export default function CreateGroupScreen() {
             if (response.ok) {
                 const user = await response.json();
                 const userId = user.id;
-                setMembers((prevMembers) => [...prevMembers, { id: userId, email }]); // Armazena o ID e o email do membro
+                setMembers((prevMembers) => [...prevMembers, { id: userId, email }]);
             } else {
                 Alert.alert('Erro', 'Usuário não encontrado ou erro ao buscar o ID.');
             }
@@ -89,8 +85,6 @@ export default function CreateGroupScreen() {
             Alert.alert('Erro', 'Não foi possível buscar o ID do usuário.');
         }
     };
-
-
 
     const handleAddMember = async () => {
         if (newMemberEmail) {
@@ -101,14 +95,10 @@ export default function CreateGroupScreen() {
 
     const handleRemoveMember = (id: string) => {
         const memberToRemove = members.find((member) => member.id === id);
-
-        // Verifica se o membro a ser removido é o usuário logado
         if (memberToRemove && memberToRemove.email === userEmail) {
             Alert.alert('Atenção', 'Você não pode remover você mesmo.');
             return;
         }
-
-        // Remove o membro se ele não for o usuário logado
         setMembers((prevMembers) => prevMembers.filter((member) => member.id !== id));
     };
 
@@ -128,7 +118,7 @@ export default function CreateGroupScreen() {
             typeGroup: type,
             startDate: type === GroupType.VIAGEM ? startDate : undefined,
             endDate: type === GroupType.VIAGEM ? endDate : undefined,
-            groupMembers: members.map((member) => member.id), // Envia apenas os IDs dos membros
+            groupMembers: members.map((member) => member.id),
         };
 
         console.log('Dados enviados ao backend:', group);
@@ -173,6 +163,7 @@ export default function CreateGroupScreen() {
     return (
         <View style={styles.container}>
             <CustomInput label="Group Name" value={name} onChange={setName} />
+
             <View style={{ alignItems: 'flex-start', width: '100%', paddingLeft: 16 }}>
                 <Text style={styles.label}>Group Type</Text>
             </View>
@@ -213,7 +204,7 @@ export default function CreateGroupScreen() {
                                 mode="date"
                                 display="default"
                                 onChange={onStartDateChange}
-                                maximumDate={endDate || undefined}  // Bloqueia datas após a data de término
+                                maximumDate={endDate || undefined}
                             />
                         )}
                     </View>
@@ -236,7 +227,7 @@ export default function CreateGroupScreen() {
                                 mode="date"
                                 display="default"
                                 onChange={onEndDateChange}
-                                minimumDate={startDate || new Date()}  // Bloqueia datas antes da data de início
+                                minimumDate={startDate || new Date()}
                             />
                         )}
                     </View>
@@ -314,14 +305,13 @@ const styles = StyleSheet.create({
         textAlignVertical: 'center',
     },
     memberContainer: {
-
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         width: '100%',
         padding: 16,
         borderBottomWidth: 1,
-        borderColor: Theme.INPUT
+        borderColor: Theme.INPUT,
     },
     memberText: {
         fontSize: 16,

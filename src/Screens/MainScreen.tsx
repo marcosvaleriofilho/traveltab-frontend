@@ -2,32 +2,39 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { Theme } from '../../constants/Theme';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation, NavigationProp, useFocusEffect } from '@react-navigation/native'; // Importe NavigationProp
-import { RootStackParamList } from '../../App'; // Importe o tipo RootStackParamList
+import { useNavigation, NavigationProp, useFocusEffect } from '@react-navigation/native';
+import { RootStackParamList } from '../../App';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface Group {
   id: string;
   nameGroup: string;
-  description: string;
+  groupMembers: string[]; // Array de IDs dos membros
+  startDate?: string;
+  endDate?: string;
 }
 
 export default function MainScreen() {
   const [groups, setGroups] = useState<Group[]>([]);
-  const [loading, setLoading] = useState(false); // Adicionando um estado de carregamento
-  const navigation = useNavigation<NavigationProp<RootStackParamList>>(); // Tipagem correta do useNavigation
+  const [loading, setLoading] = useState(false);
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
-  // Função para buscar os grupos do usuário logado
+  const formatDate = (date: string | undefined) => {
+    if (!date) return 'Data não definida';
+    const options: Intl.DateTimeFormatOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
+    return new Date(date).toLocaleDateString('pt-BR', options);
+  };
+
   const fetchGroups = async () => {
     try {
-      const userEmail = await AsyncStorage.getItem('userEmail'); // Recupera o e-mail do usuário logado
+      const userEmail = await AsyncStorage.getItem('userEmail');
 
       if (!userEmail) {
         Alert.alert('Erro', 'Não foi possível obter o email do usuário.');
         return;
       }
 
-      setLoading(true); // Ativa o estado de carregamento
+      setLoading(true);
 
       const response = await fetch(`http://10.0.2.2:8080/groups/byEmail?email=${userEmail}`, {
         method: 'GET',
@@ -38,7 +45,11 @@ export default function MainScreen() {
 
       if (response.ok) {
         const fetchedGroups = await response.json();
-        setGroups(fetchedGroups);
+        const updatedGroups = fetchedGroups.map((group: Group) => ({
+          ...group,
+          groupMembers: group.groupMembers || [],
+        }));
+        setGroups(updatedGroups);
       } else {
         console.error('Erro ao buscar grupos do servidor:', await response.text());
         Alert.alert('Erro', 'Falha ao buscar os grupos do usuário.');
@@ -47,14 +58,13 @@ export default function MainScreen() {
       console.error('Erro ao buscar grupos do servidor:', error);
       Alert.alert('Erro', `Falha ao buscar os grupos do usuário. Detalhe do erro: ${error}`);
     } finally {
-      setLoading(false); // Desativa o estado de carregamento
+      setLoading(false);
     }
   };
 
-  // Usa o useFocusEffect para buscar os grupos sempre que a tela for focada
   useFocusEffect(
     useCallback(() => {
-      fetchGroups(); // Busca os grupos quando a tela ganha o foco
+      fetchGroups();
     }, [])
   );
 
@@ -64,24 +74,37 @@ export default function MainScreen() {
         <Text style={styles.title}>Meus grupos</Text>
         <TouchableOpacity
           style={{ alignItems: 'center', justifyContent: 'center' }}
-          onPress={() => navigation.navigate('CreateGroupScreen')} // Navegação para a tela de criação do grupo
+          onPress={() => navigation.navigate('CreateGroupScreen')}
         >
           <Ionicons name="add" size={32} color="white" />
         </TouchableOpacity>
       </View>
 
       <View style={{ width: '100%', flex: 1 }}>
-        {loading ? ( // Exibe um texto de carregamento enquanto busca os grupos
+        {loading ? (
           <Text style={styles.loadingText}>Carregando...</Text>
         ) : (
           <FlatList
             data={groups}
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) => (
-              <TouchableOpacity style={styles.group}>
+              <TouchableOpacity
+                style={styles.group}
+                onPress={() => navigation.navigate('GroupDetailScreen', { groupId: item.id })} // Navegar para a nova tela
+              >
                 <Text style={styles.text}>{item.nameGroup}</Text>
-                <Text style={styles.text}>{item.description}</Text>
+                {item.startDate && item.endDate ? (
+                  <Text style={styles.dates}>
+                    {formatDate(item.startDate)} - {formatDate(item.endDate)}
+                  </Text>
+                ) : (
+                  <Text style={styles.dates}>Data não definida</Text>
+                )}
+                <Text style={styles.memberCount}>Número de membros: {item.groupMembers?.length || 0}</Text>
+
               </TouchableOpacity>
+
+
             )}
           />
         )}
@@ -110,6 +133,15 @@ const styles = StyleSheet.create({
   },
   text: {
     fontFamily: 'Poppins-Regular',
+  },
+  memberCount: {
+    fontFamily: 'Poppins-Bold',
+    marginTop: 8,
+  },
+  dates: {
+    fontFamily: 'Poppins-Regular',
+    marginTop: 8,
+    color: 'gray',
   },
   setting: {
     flexDirection: 'row',
