@@ -1,15 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
+import { View, Alert, StyleSheet } from 'react-native';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../App'; // Certifique-se de ajustar o caminho para onde seu RootStackParamList está definido.
 import { Theme } from '../../constants/Theme';
+import CustomButton from '../Components/CustomButton';
+import { CustomInput } from '../Components/CustomInput';
 
-// Defina o tipo para a rota
+// Defina o tipo para a navegação
+type GroupDetailNavigationProp = NativeStackNavigationProp<RootStackParamList, 'GroupDetailScreen'>;
 type GroupDetailRouteProp = RouteProp<RootStackParamList, 'GroupDetailScreen'>;
 
 export default function GroupDetailScreen() {
   const route = useRoute<GroupDetailRouteProp>(); // Use o tipo correto aqui
-  const navigation = useNavigation();
+  const navigation = useNavigation<GroupDetailNavigationProp>(); // Corrigido para usar o tipo correto
   const { groupId } = route.params; // Agora o TypeScript sabe que groupId existe
 
   const [groupName, setGroupName] = useState(''); // Nome do grupo
@@ -73,16 +77,82 @@ export default function GroupDetailScreen() {
     }
   };
 
+  const handleAddMember = () => {
+    navigation.navigate('ManageMembersScreen', { groupId }); // Navegar para a tela de adicionar membro
+  };
+
+  const handleAddExpense = () => {
+    navigation.navigate('AddExpenseScreen', { groupId }); // Navegar para a tela de adicionar despesa
+  };
+
+  const handleViewExpenses = () => {
+    navigation.navigate('GroupExpensesScreen', { groupId }); // Navegar para a tela de visualização de despesas
+  };
+
+  const handleDeleteGroup = async () => {
+    try {
+      const response = await fetch(`http://10.0.2.2:8080/groups/delete/${groupId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        Alert.alert('Sucesso', 'Grupo excluído com sucesso!');
+        navigation.navigate('MainTabs'); // Voltar para a tela principal após exclusão
+      } else {
+        Alert.alert('Erro', 'Falha ao excluir o grupo.');
+      }
+    } catch (error) {
+      Alert.alert('Erro', `Erro ao excluir o grupo: ${error}`);
+    }
+  };
+
   return (
     <View style={styles.container}>
-      <TextInput
-        style={styles.input}
+      <CustomInput
+        label="Group Name"
         value={groupName}
-        onChangeText={setGroupName}
-        placeholder="Nome do grupo"
+        onChange={setGroupName}
       />
 
-      <Button title="Salvar Alterações" onPress={handleSaveChanges} />
+      {/* Botão para salvar alterações */}
+      <CustomButton
+        title="Save Changes"
+        color={Theme.TERTIARY}
+        textColor={Theme.SECONDARY}
+        onPress={handleSaveChanges}
+      />
+
+      {/* Botão para adicionar membros */}
+      <CustomButton
+        title="Manage Members"
+        color={Theme.TERTIARY}
+        textColor={Theme.SECONDARY}
+        onPress={handleAddMember}
+      />
+
+      {/* Botão para adicionar despesas */}
+      <CustomButton
+        title="Add expense"
+        color={Theme.TERTIARY}
+        textColor={Theme.SECONDARY}
+        onPress={handleAddExpense}
+      />
+
+      {/* Botão para visualizar despesas */}
+      <CustomButton
+        title="Visualize expenses"
+        color={Theme.TERTIARY}
+        textColor={Theme.SECONDARY}
+        onPress={handleViewExpenses}
+      />
+
+      {/* Botão para excluir o grupo */}
+      <CustomButton
+        title="Delete Group"
+        color="red"
+        textColor="white"
+        onPress={handleDeleteGroup}
+      />
     </View>
   );
 }
@@ -91,12 +161,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-  },
-  input: {
-    height: 40,
-    borderColor: Theme.INPUT,
-    borderWidth: 1,
-    marginBottom: 20,
-    padding: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#fff',
   },
 });

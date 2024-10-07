@@ -13,11 +13,14 @@ import ProfileScreen from './src/Screens/ProfileScreen';
 import TasksScreen from './src/Screens/TasksScreen';
 import MoneyScreen from './src/Screens/MoneyScreen';
 import NotifyScreen from './src/Screens/NotifyScreen';
-import CreateGroupScreen from './src/Screens/CreateGroupScreen'; // Importação da nova tela
+import CreateGroupScreen from './src/Screens/CreateGroupScreen';
+import GroupDetailScreen from './src/Screens/GroupDetailScreen';
+import ManageMembersScreen from './src/Screens/ManageMembersScreen'; // Renomeado para "Gerenciar Membros"
+import AddExpenseScreen from './src/Screens/AddExpenseScreen';
+import GroupExpensesScreen from './src/Screens/GroupExpensesScreen';
 import { Ionicons } from '@expo/vector-icons';
 import { Theme } from './constants/Theme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import GroupDetailScreen from './src/Screens/GroupDetailScreen';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -27,9 +30,11 @@ export type RootStackParamList = {
   Login: undefined;
   MainTabs: undefined;
   CreateGroupScreen: undefined;
-  GroupDetailScreen: { groupId: string }; // Adiciona a nova tela com o parâmetro groupId
+  GroupDetailScreen: { groupId: string };
+  ManageMembersScreen: { groupId: string }; // Renomeado para "Gerenciar Membros"
+  AddExpenseScreen: { groupId: string };
+  GroupExpensesScreen: { groupId: string };
 };
-
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator();
@@ -135,26 +140,20 @@ export default function App() {
           <Stack.Screen
             name="CreateGroupScreen"
             component={CreateGroupScreen}
-            options={({ navigation }) => ({
+            options={{
               title: 'Criar Grupo',
               headerStyle: {
-                backgroundColor: Theme.TERTIARY
+                backgroundColor: Theme.TERTIARY,
               },
-              headerTintColor: '#fff', // Cor do texto e ícones no header
+              headerTintColor: '#fff',
               headerTitleStyle: {
                 fontWeight: 'bold',
                 fontFamily: 'Poppins-Bold',
               },
-              // Adiciona o ícone de check no header
-              headerRight: () => (
-                <TouchableOpacity onPress={() => navigation.getParam('handleCreateGroup')()}>
-                  <Ionicons name="checkmark" size={24} color="white" style={{ marginRight: 10 }} />
-                </TouchableOpacity>
-              ),
-            })}
+            }}
           />
           <Stack.Screen
-            name="GroupDetailScreen" // Adicione aqui a nova tela
+            name="GroupDetailScreen"
             component={GroupDetailScreen}
             options={{
               title: 'Detalhes do Grupo',
@@ -168,8 +167,51 @@ export default function App() {
               },
             }}
           />
-
-
+          <Stack.Screen
+            name="ManageMembersScreen" // Novo nome da tela
+            component={ManageMembersScreen} // Atualizado para refletir o novo nome
+            options={{
+              title: 'Gerenciar Membros', // Alterar o título
+              headerStyle: {
+                backgroundColor: Theme.TERTIARY,
+              },
+              headerTintColor: '#fff',
+              headerTitleStyle: {
+                fontWeight: 'bold',
+                fontFamily: 'Poppins-Bold',
+              },
+            }}
+          />
+          <Stack.Screen
+            name="AddExpenseScreen"
+            component={AddExpenseScreen}
+            options={{
+              title: 'Adicionar Despesa',
+              headerStyle: {
+                backgroundColor: Theme.TERTIARY,
+              },
+              headerTintColor: '#fff',
+              headerTitleStyle: {
+                fontWeight: 'bold',
+                fontFamily: 'Poppins-Bold',
+              },
+            }}
+          />
+          <Stack.Screen
+            name="GroupExpensesScreen"
+            component={GroupExpensesScreen}
+            options={{
+              title: 'Despesas do Grupo',
+              headerStyle: {
+                backgroundColor: Theme.TERTIARY,
+              },
+              headerTintColor: '#fff',
+              headerTitleStyle: {
+                fontWeight: 'bold',
+                fontFamily: 'Poppins-Bold',
+              },
+            }}
+          />
         </Stack.Navigator>
       </SafeAreaView>
       <StatusBar hidden={true} />
