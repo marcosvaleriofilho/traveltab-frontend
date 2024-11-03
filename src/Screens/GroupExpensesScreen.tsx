@@ -58,15 +58,17 @@ export default function GroupExpensesScreen({ route }: any) {
   // Renderizar cada item de despesa
   const renderExpenseItem = ({ item }: { item: Expense }) => (
     <View style={styles.item}>
-      <Text style={styles.description}>{item.description}</Text>
-      <Text style={styles.amount}>R$ {item.balance.toFixed(2)}</Text>
-
+      <View style={{flexDirection: 'row', width:'100%', justifyContent:'space-between'}}>
+        <Text style={styles.description}>{item.description}</Text>
+        <Text style={styles.amount}>R$ {item.balance.toFixed(2)}</Text>
+      </View>
+      
       {/* Mostrar os membros atribuídos à despesa */}
       <Text style={styles.assignedLabel}>Atribuído a:</Text>
       {item.assignedUsers.map((user) => (
         <View key={user.userId} style={styles.memberContainer}>
-          <Text style={styles.memberText}>Usuário: {userEmails[user.userId] || 'Desconhecido'}</Text>
-          <Text style={styles.memberDebt}>Dívida: R$ {user.valorInDebt.toFixed(2)}</Text>
+          <Text style={styles.memberText}>{userEmails[user.userId] || 'Desconhecido'}</Text>
+          <Text style={styles.memberDebt}>R${user.valorInDebt.toFixed(2)}</Text>
         </View>
       ))}
     </View>
@@ -75,7 +77,6 @@ export default function GroupExpensesScreen({ route }: any) {
   // Renderização condicional para mostrar o carregamento ou a lista de despesas
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Despesas do Grupo</Text>
       {loading ? (
         <Text>Carregando...</Text> // Mensagem de carregamento
       ) : expenses.length === 0 ? (
@@ -84,7 +85,7 @@ export default function GroupExpensesScreen({ route }: any) {
         <FlatList
           data={expenses}
           renderItem={renderExpenseItem}
-          keyExtractor={(item) => item._id} // Corrigindo a chave para cada despesa
+          keyExtractor={(item) => item._id || item.description} // Usar chave única para cada despesa
         />
       )}
     </View>
@@ -98,11 +99,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  title: {
-    fontSize: 22,
-    fontFamily: 'Poppins-Bold',
-    marginBottom: 20,
-  },
   item: {
     padding: 10,
     borderBottomWidth: 1,
@@ -112,7 +108,7 @@ const styles = StyleSheet.create({
   },
   description: {
     fontSize: 16,
-    fontFamily: 'Poppins-Regular',
+    fontFamily: 'Poppins-Bold',
   },
   amount: {
     fontSize: 18,
@@ -128,6 +124,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 5,
+    width: '100%'
   },
   memberText: {
     fontSize: 14,
