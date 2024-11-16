@@ -54,8 +54,6 @@ function MainTabs() {
                 return 'checkbox-outline';
               case 'Balance':
                 return 'cash-outline';
-              case 'Alerts':
-                return 'notifications-outline';
               default:
                 return 'help-circle-outline';
             }
@@ -78,7 +76,6 @@ function MainTabs() {
       <Tab.Screen name="Tasks" component={TasksScreen} />
       <Tab.Screen name="Balance" component={MoneyScreen} />
       <Tab.Screen name="Groups" component={MainScreen} />
-      <Tab.Screen name="Alerts" component={NotifyScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );
@@ -141,7 +138,7 @@ export default function App() {
             name="CreateGroupScreen"
             component={CreateGroupScreen}
             options={{
-              title: 'Criar Grupo',
+              title: 'Create Group',
               headerStyle: {
                 backgroundColor: Theme.TERTIARY,
               },
@@ -156,7 +153,7 @@ export default function App() {
             name="GroupDetailScreen"
             component={GroupDetailScreen}
             options={{
-              title: 'Detalhes do Grupo',
+              title: 'Group Details',
               headerStyle: {
                 backgroundColor: Theme.TERTIARY,
               },
@@ -171,7 +168,7 @@ export default function App() {
             name="ManageMembersScreen" // Novo nome da tela
             component={ManageMembersScreen} // Atualizado para refletir o novo nome
             options={{
-              title: 'Gerenciar Membros', // Alterar o título
+              title: 'Manage Members', // Alterar o título
               headerStyle: {
                 backgroundColor: Theme.TERTIARY,
               },
@@ -186,7 +183,7 @@ export default function App() {
             name="AddExpenseScreen"
             component={AddExpenseScreen}
             options={{
-              title: 'Adicionar Despesa',
+              title: 'Add Expenses',
               headerStyle: {
                 backgroundColor: Theme.TERTIARY,
               },
@@ -201,7 +198,7 @@ export default function App() {
             name="GroupExpensesScreen"
             component={GroupExpensesScreen}
             options={{
-              title: 'Despesas do Grupo',
+              title: 'Group Expenses',
               headerStyle: {
                 backgroundColor: Theme.TERTIARY,
               },

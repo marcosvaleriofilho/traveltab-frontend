@@ -4,7 +4,10 @@ import {
     Text,
     TextInput,
     StyleSheet,
-    TextInputProps
+    TextInputProps,
+    StyleProp,
+    ViewStyle,
+    TextStyle,
 } from 'react-native';
 import { Theme } from '../../constants/Theme';
 
@@ -15,6 +18,9 @@ export type CustomInputProps = {
     onChange?: (text: string) => void;
     type?: TextInputProps['keyboardType'];
     secureTextEntry?: boolean; // Tornando secureTextEntry opcional
+    restrictNumeric?: boolean; // Novo atributo para restringir a entrada numérica
+    containerStyle?: StyleProp<ViewStyle>; // Estilo para o container externo
+    inputStyle?: StyleProp<TextStyle>; // Estilo para o TextInput
 };
 
 export const CustomInput: React.FC<CustomInputProps> = ({
@@ -23,12 +29,25 @@ export const CustomInput: React.FC<CustomInputProps> = ({
     onChange = () => {},
     type = 'default',
     secureTextEntry = false, // Definindo valor padrão como false
+    restrictNumeric = false, // Por padrão, não restringe entrada numérica
+    containerStyle,
+    inputStyle,
     ...props
 }) => {
     const [isFocused, setIsFocused] = useState(false);
 
+    const handleTextChange = (text: string) => {
+        // Aplica o regex somente se `restrictNumeric` for true
+        if (restrictNumeric) {
+            // Permite apenas números e um ponto decimal
+            const numericRegex = /^[0-9]*\.?[0-9]*$/;
+            if (!numericRegex.test(text)) return; // Ignora entradas inválidas
+        }
+        onChange(text); // Atualiza o valor válido
+    };
+
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, containerStyle]}>
             {label && (
                 <Text style={styles.label}>
                     {label}
@@ -47,11 +66,11 @@ export const CustomInput: React.FC<CustomInputProps> = ({
                 <TextInput
                     value={value}
                     keyboardType={type}
-                    onChangeText={(text) => onChange(text)}
-                    secureTextEntry={secureTextEntry} // Adicionando secureTextEntry aqui
+                    onChangeText={handleTextChange} // Aplica validação aqui
+                    secureTextEntry={secureTextEntry}
                     onBlur={() => setIsFocused(false)}
                     onFocus={() => setIsFocused(true)}
-                    style={styles.input}
+                    style={[styles.input, inputStyle]} // Adiciona estilo dinâmico aqui
                     {...props}
                 />
             </View>

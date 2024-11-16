@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Alert, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, Alert, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import CustomButton from '../Components/CustomButton';
+import { CustomInput } from '../Components/CustomInput';
 import { Theme } from '../../constants/Theme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Ionicons } from '@expo/vector-icons';
 
 export default function AddExpenseScreen({ route, navigation }: any) {
   const { groupId } = route.params;
@@ -11,10 +11,9 @@ export default function AddExpenseScreen({ route, navigation }: any) {
   const [amount, setAmount] = useState('');
   const [groupMembers, setGroupMembers] = useState<{ id: string; email: string }[]>([]);
   const [selectedMembers, setSelectedMembers] = useState<{ id: string; email: string; value?: string }[]>([]);
-  const [isSplitEvenly, setIsSplitEvenly] = useState(true); // Controle de divisão igualitária ou personalizada
+  const [isSplitEvenly, setIsSplitEvenly] = useState(true);
   const [userEmail, setUserEmail] = useState<string | null>(null);
 
-  // Carregar os membros do grupo ao montar o componente
   useEffect(() => {
     const getUserEmail = async () => {
       const storedEmail = await AsyncStorage.getItem('userEmail');
@@ -26,7 +25,6 @@ export default function AddExpenseScreen({ route, navigation }: any) {
     fetchGroupMembers();
   }, []);
 
-  // Função para buscar membros do grupo
   const fetchGroupMembers = async () => {
     try {
       const response = await fetch(`http://10.0.2.2:8080/groups/detail/${groupId}`, {
@@ -51,79 +49,72 @@ export default function AddExpenseScreen({ route, navigation }: any) {
               const user = await userResponse.json();
               return { id: user.id, email: user.email };
             }
-            return { id: userId, email: 'Desconhecido' };
+            return { id: userId, email: 'Unknown' };
           })
         );
         setGroupMembers(membersWithDetails);
       } else {
-        Alert.alert('Erro', 'Não foi possível carregar os membros do grupo.');
+        Alert.alert('Error', 'Failed to load group members.');
       }
     } catch (error) {
-      Alert.alert('Erro', `Erro ao carregar membros: ${error}`);
+      Alert.alert('Error', `Error loading members: ${error}`);
     }
   };
 
-  // Função para lidar com a adição de despesa
-  // Função para lidar com a adição de despesa
-const handleAddExpense = async () => {
-  if (!description || !amount || selectedMembers.length === 0) {
-    Alert.alert('Erro', 'Preencha todos os campos e selecione os membros.');
-    return;
-  }
+  const handleAddExpense = async () => {
+    if (!description || !amount || selectedMembers.length === 0) {
+      Alert.alert('Error', 'Please fill all fields and select members.');
+      return;
+    }
 
-  // Estrutura dos dados a serem enviados ao backend
-  const membersInvolved = selectedMembers.map((member) => member.id);
-  const assignedUsers: { [key: string]: number } = {};
+    const assignedUsers: { [key: string]: number } = {};
 
-  if (isSplitEvenly) {
-    const splitValue = parseFloat(amount) / selectedMembers.length;
-    selectedMembers.forEach((member) => {
-      assignedUsers[member.id] = splitValue;
-    });
-  } else {
-    selectedMembers.forEach((member) => {
-      const value = parseFloat(member.value || '0');
-      assignedUsers[member.id] = value;
-    });
-  }
-
-  // Atualização para incluir o campo `assignedGroups`
-  const expenseData = {
-    description,
-    balance: parseFloat(amount),
-    groupId, // Enviando o `groupId` como parte do payload
-    assignedUsers, // Mapeamento de usuário e suas dívidas
-    assignedGroups: [groupId], // Incluindo `assignedGroups` com o `groupId`
-    isSplitEvenly,
-  };
-
-  console.log('Dados da despesa a serem enviados:', expenseData);
-
-  try {
-    const response = await fetch(`http://10.0.2.2:8080/expenses/create`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(expenseData),
-    });
-
-    if (response.ok) {
-      Alert.alert('Sucesso', 'Despesa adicionada com sucesso!');
-      navigation.goBack();
+    if (isSplitEvenly) {
+      const splitValue = parseFloat(amount) / selectedMembers.length;
+      selectedMembers.forEach((member) => {
+        assignedUsers[member.id] = splitValue;
+      });
     } else {
-      const errorMessage = await response.text();
-      console.error('Erro do servidor:', errorMessage);
-      Alert.alert('Erro', errorMessage || 'Não foi possível adicionar a despesa.');
+      selectedMembers.forEach((member) => {
+        const value = parseFloat(member.value || '0');
+        assignedUsers[member.id] = value;
+      });
     }
-  } catch (error) {
-    console.error('Erro ao adicionar despesa:', error);
-    Alert.alert('Erro', `Erro ao adicionar despesa: ${error}`);
-  }
-};
 
+    const expenseData = {
+      description,
+      balance: parseFloat(amount),
+      groupId,
+      assignedUsers,
+      assignedGroups: [groupId],
+      isSplitEvenly,
+    };
 
-  // Função para selecionar/deselecionar membros e atribuir valores personalizados
+    console.log('Expense data to be sent:', expenseData);
+
+    try {
+      const response = await fetch(`http://10.0.2.2:8080/expenses/create`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(expenseData),
+      });
+
+      if (response.ok) {
+        Alert.alert('Success', 'Expense successfully added!');
+        navigation.goBack();
+      } else {
+        const errorMessage = await response.text();
+        console.error('Server error:', errorMessage);
+        Alert.alert('Error', errorMessage || 'Failed to add expense.');
+      }
+    } catch (error) {
+      console.error('Error adding expense:', error);
+      Alert.alert('Error', `Error adding expense: ${error}`);
+    }
+  };
+
   const toggleMemberSelection = (member: { id: string; email: string }) => {
     const isSelected = selectedMembers.some((m) => m.id === member.id);
 
@@ -134,57 +125,72 @@ const handleAddExpense = async () => {
     }
   };
 
-  // Renderização de cada membro na lista
   const renderMemberItem = ({ item }: { item: { id: string; email: string } }) => {
     const isSelected = selectedMembers.some((m) => m.id === item.id);
     return (
-      <View style={styles.memberContainer}>
-        <TouchableOpacity onPress={() => toggleMemberSelection(item)}>
-          <Text style={[styles.memberText, isSelected ? styles.selected : {}]}>{item.email}</Text>
-        </TouchableOpacity>
-        {!isSplitEvenly && isSelected && (
-          <TextInput
-            style={styles.inputAmount}
-            placeholder="Valor"
-            keyboardType="numeric"
-            onChangeText={(value) =>
-              setSelectedMembers((prevSelected) =>
-                prevSelected.map((m) => (m.id === item.id ? { ...m, value } : m))
-              )
-            }
-          />
-        )}
-      </View>
+        <View
+            style={[
+                styles.memberContainer,
+                isSelected && { backgroundColor: Theme.PASTEL}, // Aplica o fundo quando selecionado
+            ]}
+        >
+            <TouchableOpacity style={{width:'80%'}} onPress={() => toggleMemberSelection(item)}>
+                <Text style={styles.memberText}>{item.email}</Text>
+            </TouchableOpacity>
+            {!isSplitEvenly && isSelected && (
+                <CustomInput
+                    value={selectedMembers.find((m) => m.id === item.id)?.value || ''}
+                    type="numeric"
+                    restrictNumeric={true}
+                    containerStyle={{ width: -50, paddingRight: 10  }}
+                    inputStyle={{ fontSize: 14, padding: 0 }}
+                    onChange={(value) =>
+                        setSelectedMembers((prevSelected) =>
+                            prevSelected.map((m) =>
+                                m.id === item.id ? { ...m, value } : m
+                            )
+                        )
+                    }
+                />
+            )}
+        </View>
     );
-  };
+};
+
 
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>Adicionar Despesa</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Descrição da despesa"
+      <CustomInput
+        label="Expense Description"
         value={description}
-        onChangeText={setDescription}
+        onChange={setDescription}
       />
-      <TextInput
-        style={styles.input}
-        placeholder="Valor"
-        keyboardType="numeric"
+      <CustomInput
+        label="Amount"
         value={amount}
-        onChangeText={setAmount}
+        type="numeric"
+        restrictNumeric={true}
+        onChange={setAmount}
       />
-      <Text style={styles.label}>Dividir Despesa:</Text>
+      <Text style={styles.label}>Split Expense:</Text>
       <View style={styles.radioContainer}>
-        <TouchableOpacity onPress={() => setIsSplitEvenly(true)}>
-          <Text style={isSplitEvenly ? styles.selectedRadio : styles.radio}>Dividir Igual</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => setIsSplitEvenly(false)}>
-          <Text style={!isSplitEvenly ? styles.selectedRadio : styles.radio}>Dividir Customizado</Text>
-        </TouchableOpacity>
+          <Text
+              onPress={() => setIsSplitEvenly(true)}
+              style={isSplitEvenly ? styles.selected : styles.radio}
+          >
+              Equal Split
+          </Text>
+          <View style={{ width: '2.5%' }}></View>
+          <Text
+              onPress={() => setIsSplitEvenly(false)}
+              style={!isSplitEvenly ? styles.selected : styles.radio}
+          >
+              Custom Split
+          </Text>
       </View>
 
-      <Text style={styles.label}>Selecione os Membros:</Text>
+
+      <Text style={styles.label}>Select Members:</Text>
       <FlatList
         data={groupMembers}
         renderItem={renderMemberItem}
@@ -192,7 +198,7 @@ const handleAddExpense = async () => {
       />
 
       <CustomButton
-        title="Adicionar Despesa"
+        title="Add Expense"
         onPress={handleAddExpense}
         color={Theme.TERTIARY}
         textColor={Theme.SECONDARY}
@@ -204,36 +210,32 @@ const handleAddExpense = async () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
     alignItems: 'center',
     justifyContent: 'center',
+    paddingBottom: 30
   },
   label: {
     fontSize: 18,
     fontFamily: 'Poppins-Bold',
     marginBottom: 10,
   },
-  input: {
-    width: '100%',
-    padding: 10,
-    borderColor: Theme.INPUT,
-    borderWidth: 1,
-    borderRadius: 8,
-    marginBottom: 20,
-  },
   radioContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    width: '100%',
     marginBottom: 20,
   },
   radio: {
+    height: 50,
+    width: '45%',
     fontSize: 16,
-    padding: 10,
-    borderWidth: 1,
-    borderRadius: 5,
+    borderWidth: 2,
+    borderRadius: 12,
+    color: Theme.TERTIARY,
     borderColor: Theme.INPUT,
-  },
+    fontFamily: 'Poppins-Bold',
+    textAlign: 'center',
+    textAlignVertical: 'center',
+},
   selectedRadio: {
     fontSize: 16,
     padding: 10,
@@ -244,25 +246,35 @@ const styles = StyleSheet.create({
   },
   memberContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    alignContent:'flex-start',
     borderBottomWidth: 1,
     borderBottomColor: Theme.INPUT,
-    paddingVertical: 10,
-    width: '100%',
+    height: 75,
+    width: 450,
+    padding: 10
   },
   memberText: {
     fontSize: 16,
     fontFamily: 'Poppins-Regular',
+    textAlignVertical: 'center',
+    flex: 1, // Alinha o texto corretamente
+    
+  },
+  inputSmall: {
+    width: 80, // Tamanho reduzido
+
   },
   selected: {
+    width: '45%',
+    fontSize: 16,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: Theme.TERTIARY,
     backgroundColor: Theme.PASTEL,
-  },
-  inputAmount: {
-    width: 80,
-    padding: 5,
-    borderColor: Theme.INPUT,
-    borderWidth: 1,
-    borderRadius: 8,
-  },
+    color: Theme.TERTIARY,
+    fontFamily: 'Poppins-Bold',
+    textAlign: 'center',
+    textAlignVertical: 'center',
+},
+
 });

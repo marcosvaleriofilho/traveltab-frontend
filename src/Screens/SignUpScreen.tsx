@@ -17,7 +17,7 @@ export default function SignUpScreen() {
 
     const handleSignUp = async () => {
         if (password !== confirmPassword) {
-            Alert.alert('Erro', 'As senhas não coincidem.');
+            Alert.alert('Error', 'Passwords do not match.');
             return;
         }
 
@@ -38,17 +38,17 @@ export default function SignUpScreen() {
 
             if (response.ok) {
                 const data = await response.json();
-                console.log('Registro bem-sucedido!', data);
-                Alert.alert('Sucesso', 'Registro realizado com sucesso!');
+                console.log('Registration successful!', data);
+                Alert.alert('Success', 'Registration completed successfully!');
                 navigation.navigate('Home');
             } else {
                 const errorData = await response.json();
-                console.log('Erro no registro:', errorData);
-                Alert.alert('Erro', errorData.message || 'Ocorreu um erro no registro.');
+                console.log('Registration error:', errorData);
+                Alert.alert('Error', errorData.message || 'An error occurred during registration.');
             }
         } catch (error) {
-            console.error('Erro na requisição:', error);
-            Alert.alert('Erro', 'Não foi possível conectar ao servidor.');
+            console.error('Request error:', error);
+            Alert.alert('Error', 'Unable to connect to the server.');
         } finally {
             setLoading(false);
         }
@@ -95,7 +95,7 @@ export default function SignUpScreen() {
                     <CustomButton
                         borderColor={Theme.TERTIARY}
                         title={loading ? 'Loading...' : 'Sign Up'}
-                        textColor='white'
+                        textColor="white"
                         color={Theme.TERTIARY}
                         onPress={handleSignUp}
                         disabled={loading}

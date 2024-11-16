@@ -22,7 +22,6 @@ export default function ManageMembersScreen({ route, navigation }: any) {
     fetchGroupMembers();
   }, []);
 
-  // Função para buscar os membros do grupo e obter os e-mails associados
   const fetchGroupMembers = async () => {
     try {
       const response = await fetch(`http://10.0.2.2:8080/groups/detail/${groupId}`, {
@@ -35,9 +34,7 @@ export default function ManageMembersScreen({ route, navigation }: any) {
       if (response.ok) {
         const group = await response.json();
 
-        // Verificar se 'groupMembers' contém apenas IDs ou objetos com { id, email }
         const membersWithDetails = await Promise.all(group.groupMembers.map(async (userId: string) => {
-          // Busca detalhes de cada usuário pelo ID
           const userResponse = await fetch(`http://10.0.2.2:8080/user/findById/${userId}`, {
             method: 'GET',
             headers: {
@@ -47,30 +44,30 @@ export default function ManageMembersScreen({ route, navigation }: any) {
 
           if (userResponse.ok) {
             const user = await userResponse.json();
-            return { id: user.id, email: user.email }; // Retorna o ID e e-mail do usuário
+            return { id: user.id, email: user.email };
           }
 
-          return { id: userId, email: 'Desconhecido' }; // Se não encontrar o usuário, retorna email desconhecido
+          return { id: userId, email: 'Unknown' };
         }));
 
         setGroupMembers(membersWithDetails);
       } else {
-        Alert.alert('Erro', 'Falha ao buscar os membros do grupo.');
+        Alert.alert('Error', 'Failed to fetch group members.');
       }
     } catch (error) {
-      Alert.alert('Erro', `Erro ao buscar membros: ${error}`);
+      Alert.alert('Error', `Failed to fetch members: ${error}`);
     }
   };
 
   const addMemberByEmail = async (email: string) => {
     const emailExists = groupMembers.some((member) => member.email === email);
     if (emailExists) {
-      Alert.alert('Atenção', 'Este e-mail já foi adicionado ao grupo.');
+      Alert.alert('Attention', 'This email is already in the group.');
       return;
     }
 
     if (email === userEmail) {
-      Alert.alert('Atenção', 'Você já está incluído no grupo automaticamente.');
+      Alert.alert('Attention', 'You are automatically included in the group.');
       return;
     }
 
@@ -95,33 +92,32 @@ export default function ManageMembersScreen({ route, navigation }: any) {
         });
 
         if (addResponse.ok) {
-          Alert.alert('Sucesso', 'Membro adicionado com sucesso!');
-          fetchGroupMembers(); // Recarrega a lista de membros após adicionar
-          setMemberEmail(''); // Limpa o campo de e-mail
+          Alert.alert('Success', 'Member successfully added!');
+          fetchGroupMembers();
+          setMemberEmail('');
         } else {
           const errorMessage = await addResponse.text();
-          console.error('Erro do servidor:', errorMessage);
-          Alert.alert('Erro', errorMessage || 'Falha ao adicionar o membro ao grupo.');
+          console.error('Server error:', errorMessage);
+          Alert.alert('Error', errorMessage || 'Failed to add member to the group.');
         }
       } else {
         const errorMessage = await response.text();
-        console.error('Erro ao buscar o ID do usuário:', errorMessage);
-        Alert.alert('Erro', 'Usuário não encontrado ou erro ao buscar o ID.');
+        console.error('Error fetching user ID:', errorMessage);
+        Alert.alert('Error', 'User not found or failed to fetch the ID.');
       }
     } catch (error) {
-      console.error('Erro ao adicionar membro:', error);
-      Alert.alert('Erro', 'Não foi possível adicionar o membro.');
+      console.error('Error adding member:', error);
+      Alert.alert('Error', 'Could not add the member.');
     }
   };
 
   const handleRemoveMember = async (userId: string) => {
     try {
-      // Verifique se o usuário está tentando se remover
       const currentUser = groupMembers.find((member) => member.email === userEmail);
       
       if (currentUser && currentUser.id === userId) {
-        Alert.alert('Erro', 'Você não pode se remover do grupo.');
-        return; // Impede a remoção do próprio usuário
+        Alert.alert('Error', 'You cannot remove yourself from the group.');
+        return;
       }
     
       const response = await fetch(`http://10.0.2.2:8080/groups/removeMember/${groupId}`, {
@@ -133,16 +129,16 @@ export default function ManageMembersScreen({ route, navigation }: any) {
       });
   
       if (response.ok) {
-        Alert.alert('Sucesso', 'Membro removido com sucesso!');
-        fetchGroupMembers(); // Atualiza a lista de membros
+        Alert.alert('Success', 'Member successfully removed!');
+        fetchGroupMembers();
       } else {
         const errorMessage = await response.text();
-        console.error('Erro ao remover o membro:', errorMessage);
-        Alert.alert('Erro', 'Falha ao remover o membro do grupo.');
+        console.error('Error removing member:', errorMessage);
+        Alert.alert('Error', 'Failed to remove member from the group.');
       }
     } catch (error) {
-      console.error('Erro ao remover o membro:', error);
-      Alert.alert('Erro', `Erro ao remover o membro: ${error}`);
+      console.error('Error removing member:', error);
+      Alert.alert('Error', `Failed to remove member: ${error}`);
     }
   };
 
@@ -150,29 +146,27 @@ export default function ManageMembersScreen({ route, navigation }: any) {
     if (memberEmail) {
       await addMemberByEmail(memberEmail);
     } else {
-      Alert.alert('Erro', 'O campo de e-mail está vazio.');
+      Alert.alert('Error', 'The email field is empty.');
     }
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>Gerenciar Membros do Grupo</Text>
+      <Text style={styles.label}>Manage Group Members</Text>
 
-      {/* Campo para adicionar novo membro */}
       <TextInput
         style={styles.input}
-        placeholder="E-mail do membro"
+        placeholder="Member email"
         value={memberEmail}
         onChangeText={setMemberEmail}
       />
       <CustomButton
-        title="Adicionar Membro"
+        title="Add Member"
         onPress={handleAddMember}
         color={Theme.TERTIARY}
         textColor={Theme.SECONDARY}
       />
 
-      {/* Lista de membros atuais */}
       <FlatList
         data={groupMembers}
         keyExtractor={(item) => item.id}
@@ -184,7 +178,7 @@ export default function ManageMembersScreen({ route, navigation }: any) {
             </TouchableOpacity>
           </View>
         )}
-        ListEmptyComponent={<Text>Nenhum membro encontrado.</Text>}
+        ListEmptyComponent={<Text>No members found.</Text>}
       />
     </View>
   );

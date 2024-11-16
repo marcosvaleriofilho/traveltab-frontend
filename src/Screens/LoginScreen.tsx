@@ -34,41 +34,41 @@ export default function LoginScreen() {
             if (response.ok) {
                 if (contentType && contentType.includes('application/json')) {
                     data = await response.json();
-                    console.log('Dados recebidos do servidor:', data);
+                    console.log('Data received from server:', data);
                 } else {
-                    Alert.alert('Erro', 'Resposta inesperada do servidor.');
+                    Alert.alert('Error', 'Unexpected server response.');
                     return;
                 }
 
                 if (data.token && data.name) {
-                    // Armazena o token e o nome do usuário no AsyncStorage
+                    // Store token and user name in AsyncStorage
                     await AsyncStorage.setItem('authToken', data.token);
-                    await AsyncStorage.setItem('userEmail', email); // Usa o email diretamente
+                    await AsyncStorage.setItem('userEmail', email); // Use email directly
 
-                    console.log('Token e email salvos com sucesso no AsyncStorage');
+                    console.log('Token and email successfully saved in AsyncStorage');
 
-                    // Verifica se o email foi salvo corretamente
+                    // Check if email was saved correctly
                     const savedEmail = await AsyncStorage.getItem('userEmail');
-                    console.log('Email salvo no AsyncStorage:', savedEmail);
+                    console.log('Email saved in AsyncStorage:', savedEmail);
 
                     if (savedEmail === null) {
-                        Alert.alert('Erro', 'Não foi possível salvar o email no AsyncStorage.');
+                        Alert.alert('Error', 'Could not save email in AsyncStorage.');
                     }
                 } else {
-                    Alert.alert('Erro', 'Falha ao receber o token ou informações do usuário.');
+                    Alert.alert('Error', 'Failed to receive token or user information.');
                 }
 
-                console.log('Login bem-sucedido!', data);
+                console.log('Login successful!', data);
                 navigation.navigate('MainTabs');
             } else if (response.status === 400) {
-                Alert.alert('Erro', 'Credenciais inválidas. Verifique seu e-mail ou senha.');
+                Alert.alert('Error', 'Invalid credentials. Check your email or password.');
             } else {
                 const errorData = contentType && contentType.includes('application/json') ? await response.json() : null;
-                Alert.alert('Erro', errorData?.message || 'Ocorreu um erro no servidor.');
+                Alert.alert('Error', errorData?.message || 'An error occurred on the server.');
             }
         } catch (error) {
-            console.error('Erro na requisição:', error);
-            Alert.alert('Erro', 'Não foi possível conectar ao servidor. Verifique sua conexão.');
+            console.error('Request error:', error);
+            Alert.alert('Error', 'Could not connect to the server. Check your connection.');
         } finally {
             setLoading(false);
         }

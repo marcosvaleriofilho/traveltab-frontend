@@ -35,7 +35,7 @@ export default function GroupExpensesScreen({ route }: any) {
               const userResponse = await fetch(`http://10.0.2.2:8080/user/findById/${userId}`);
               if (userResponse.ok) {
                 const userData = await userResponse.json();
-                emails[userId] = userData.email || 'Email não encontrado';
+                emails[userId] = userData.email || 'Email not found';
               }
             })
           );
@@ -43,10 +43,10 @@ export default function GroupExpensesScreen({ route }: any) {
           setUserEmails(emails);
           setExpenses(groupData.expenses);
         } else {
-          Alert.alert('Erro', 'Não foi possível carregar as despesas.');
+          Alert.alert('Error', 'Not possible to load expenses.');
         }
       } catch (error) {
-        Alert.alert('Erro', `Erro ao carregar despesas: ${error}`);
+        Alert.alert('Error', `Not possible to load expenses: ${error}`);
       } finally {
         setLoading(false);
       }
@@ -64,10 +64,10 @@ export default function GroupExpensesScreen({ route }: any) {
       </View>
       
       {/* Mostrar os membros atribuídos à despesa */}
-      <Text style={styles.assignedLabel}>Atribuído a:</Text>
+      <Text style={styles.assignedLabel}>Atribuitted to:</Text>
       {item.assignedUsers.map((user) => (
         <View key={user.userId} style={styles.memberContainer}>
-          <Text style={styles.memberText}>{userEmails[user.userId] || 'Desconhecido'}</Text>
+          <Text style={styles.memberText}>{userEmails[user.userId] || 'Unknown'}</Text>
           <Text style={styles.memberDebt}>R${user.valorInDebt.toFixed(2)}</Text>
         </View>
       ))}
@@ -78,9 +78,9 @@ export default function GroupExpensesScreen({ route }: any) {
   return (
     <View style={styles.container}>
       {loading ? (
-        <Text>Carregando...</Text> // Mensagem de carregamento
+        <Text>Loading...</Text> // Mensagem de carregamento
       ) : expenses.length === 0 ? (
-        <Text>Nenhuma despesa encontrada para este grupo.</Text> // Mensagem caso não haja despesas
+        <Text>This group don't have expenses.</Text> // Mensagem caso não haja despesas
       ) : (
         <FlatList
           data={expenses}

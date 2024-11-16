@@ -9,7 +9,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 interface Group {
   id: string;
   nameGroup: string;
-  groupMembers: string[]; // Array de IDs dos membros
+  groupMembers: string[]; // Array of member IDs
   startDate?: string;
   endDate?: string;
 }
@@ -20,9 +20,9 @@ export default function MainScreen() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const formatDate = (date: string | undefined) => {
-    if (!date) return 'Data não definida';
+    if (!date) return 'Date not defined';
     const options: Intl.DateTimeFormatOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
-    return new Date(date).toLocaleDateString('pt-BR', options);
+    return new Date(date).toLocaleDateString('en-US', options);
   };
 
   const fetchGroups = async () => {
@@ -30,7 +30,7 @@ export default function MainScreen() {
       const userEmail = await AsyncStorage.getItem('userEmail');
 
       if (!userEmail) {
-        Alert.alert('Erro', 'Não foi possível obter o email do usuário.');
+        Alert.alert('Error', 'Could not retrieve user email.');
         return;
       }
 
@@ -51,12 +51,12 @@ export default function MainScreen() {
         }));
         setGroups(updatedGroups);
       } else {
-        console.error('Erro ao buscar grupos do servidor:', await response.text());
-        Alert.alert('Erro', 'Falha ao buscar os grupos do usuário.');
+        console.error('Error fetching groups from the server:', await response.text());
+        Alert.alert('Error', 'Failed to fetch user groups.');
       }
     } catch (error) {
-      console.error('Erro ao buscar grupos do servidor:', error);
-      Alert.alert('Erro', `Falha ao buscar os grupos do usuário. Detalhe do erro: ${error}`);
+      console.error('Error fetching groups from the server:', error);
+      Alert.alert('Error', `Failed to fetch user groups. Error details: ${error}`);
     } finally {
       setLoading(false);
     }
@@ -71,7 +71,7 @@ export default function MainScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.setting}>
-        <Text style={styles.title}>Meus grupos</Text>
+        <Text style={styles.title}>My Groups</Text>
         <TouchableOpacity
           style={{ alignItems: 'center', justifyContent: 'center' }}
           onPress={() => navigation.navigate('CreateGroupScreen')}
@@ -82,7 +82,7 @@ export default function MainScreen() {
 
       <View style={{ width: '100%', flex: 1 }}>
         {loading ? (
-          <Text style={styles.loadingText}>Carregando...</Text>
+          <Text style={styles.loadingText}>Loading...</Text>
         ) : (
           <FlatList
             data={groups}
@@ -90,7 +90,7 @@ export default function MainScreen() {
             renderItem={({ item }) => (
               <TouchableOpacity
                 style={styles.group}
-                onPress={() => navigation.navigate('GroupDetailScreen', { groupId: item.id })} // Navegar para a nova tela
+                onPress={() => navigation.navigate('GroupDetailScreen', { groupId: item.id })}
               >
                 <Text style={styles.text}>{item.nameGroup}</Text>
                 {item.startDate && item.endDate ? (
@@ -98,13 +98,10 @@ export default function MainScreen() {
                     {formatDate(item.startDate)} - {formatDate(item.endDate)}
                   </Text>
                 ) : (
-                  <Text style={styles.dates}>Data não definida</Text>
+                  <Text style={styles.dates}>Date not defined</Text>
                 )}
-                <Text style={styles.memberCount}>Número de membros: {item.groupMembers?.length || 0}</Text>
-
+                <Text style={styles.memberCount}>Number of members: {item.groupMembers?.length || 0}</Text>
               </TouchableOpacity>
-
-
             )}
           />
         )}

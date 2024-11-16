@@ -35,10 +35,10 @@ export default function GroupDetailScreen() {
           setStartDate(group.startDate);
           setEndDate(group.endDate);
         } else {
-          Alert.alert('Erro', 'Falha ao buscar os detalhes do grupo.');
+          Alert.alert('Error', 'Fail searching for group details.');
         }
       } catch (error) {
-        Alert.alert('Erro', `Falha ao buscar os detalhes do grupo: ${error}`);
+        Alert.alert('Error', `Fail searching for group details.: ${error}`);
       }
     };
 
@@ -47,15 +47,15 @@ export default function GroupDetailScreen() {
 
   const handleSaveChanges = () => {
     Alert.alert(
-      'Confirmação',
-      'Tem certeza de que deseja salvar as alterações?',
+      'Confirmation',
+      'Do you want to save the changes?',
       [
         {
-          text: 'Cancelar',
+          text: 'Cancel',
           style: 'cancel',
         },
         {
-          text: 'Confirmar',
+          text: 'Confirm',
           onPress: async () => {
             try {
               const updatedGroup = {
@@ -72,13 +72,13 @@ export default function GroupDetailScreen() {
               });
 
               if (response.ok) {
-                Alert.alert('Sucesso', 'Grupo atualizado com sucesso!');
+                Alert.alert('Success', 'Group updated with success!');
                 navigation.goBack();
               } else {
-                Alert.alert('Erro', 'Falha ao atualizar o grupo.');
+                Alert.alert('Error', 'Fail updating the group.');
               }
             } catch (error) {
-              Alert.alert('Erro', `Falha ao atualizar o grupo: ${error}`);
+              Alert.alert('Error', `Fail updating the group: ${error}`);
             }
           },
         },
@@ -88,15 +88,15 @@ export default function GroupDetailScreen() {
 
   const handleDeleteGroup = () => {
     Alert.alert(
-      'Confirmação',
-      'Tem certeza de que deseja excluir o grupo? Esta ação não pode ser desfeita.',
+      'Confirmation',
+      'Are you sure you want to delete the group? This action cannot be undone.',
       [
         {
-          text: 'Cancelar',
+          text: 'Cancel',
           style: 'cancel',
         },
         {
-          text: 'Excluir',
+          text: 'Delete',
           style: 'destructive',
           onPress: async () => {
             try {
@@ -105,13 +105,13 @@ export default function GroupDetailScreen() {
               });
 
               if (response.ok) {
-                Alert.alert('Sucesso', 'Grupo excluído com sucesso!');
+                Alert.alert('Success', 'Group deleted with success!');
                 navigation.navigate('MainTabs');
               } else {
-                Alert.alert('Erro', 'Falha ao excluir o grupo.');
+                Alert.alert('Error', 'Fail deleting the group.');
               }
             } catch (error) {
-              Alert.alert('Erro', `Erro ao excluir o grupo: ${error}`);
+              Alert.alert('Error', `Fail deleting the group: ${error}`);
             }
           },
         },

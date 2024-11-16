@@ -3,34 +3,34 @@ import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { Theme } from '../../constants/Theme';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { RootStackParamList } from '../../App'; 
-import AsyncStorage from '@react-native-async-storage/async-storage'; // Importar AsyncStorage
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
 
 export default function ProfileScreen() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
-  // Função para lidar com o logout
+  // Function to handle logout
   const handleLogout = () => {
     Alert.alert(
       'Log Out',
-      'Você tem certeza que deseja sair?',
+      'Are you sure you want to log out?',
       [
         {
-          text: 'Cancelar',
-          onPress: () => console.log('Logout cancelado'),
+          text: 'Cancel',
+          onPress: () => console.log('Logout canceled'),
           style: 'cancel',
         },
         {
-          text: 'Sair',
+          text: 'Log Out',
           onPress: async () => {
-            // Limpa o token e os dados de usuário do AsyncStorage
+            // Clear token and user data from AsyncStorage
             try {
               await AsyncStorage.removeItem('authToken');
               await AsyncStorage.removeItem('userData');
             } catch (error) {
-              console.error('Erro ao limpar AsyncStorage:', error);
+              console.error('Error clearing AsyncStorage:', error);
             }
             
-            // Redefine a navegação para a tela de Login
+            // Reset navigation to Login screen
             navigation.reset({
               index: 0,
               routes: [{ name: 'Login' }],
@@ -60,7 +60,7 @@ export default function ProfileScreen() {
       <TouchableOpacity style={styles.button}>
         <Text style={styles.buttontext}>Phone</Text>
       </TouchableOpacity>
-      {/* Botão de Logout */}
+      {/* Logout Button */}
       <TouchableOpacity
         style={[styles.button, { justifyContent: 'center', borderBottomWidth: 0 }]}
         onPress={handleLogout}

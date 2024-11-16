@@ -5,7 +5,7 @@ import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import { Theme } from '../../constants/Theme';
 
-// Interface para definir o tipo dos pagamentos
+// Interface to define the type of payments
 interface PaymentHistory {
   id: number;
   description: string;
@@ -13,56 +13,56 @@ interface PaymentHistory {
   date: string;
 }
 
-// Dados simulados para o histórico de pagamentos
+// Simulated data for payment history
 const paymentHistory: PaymentHistory[] = [
   {
     id: 1,
-    description: 'Supermercado',
+    description: 'Supermarket',
     amount: -150.75,
-    date: '12/09/2024',
+    date: '09/12/2024',
   },
   {
     id: 2,
-    description: 'Salário',
+    description: 'Salary',
     amount: 3000,
-    date: '10/09/2024',
+    date: '09/10/2024',
   },
   {
     id: 3,
     description: 'Netflix',
     amount: -30,
-    date: '05/09/2024',
-  },
-  {
-    id: 6,
-    description: 'Netflix',
-    amount: -30,
-    date: '05/09/2024',
-  },
-  {
-    id: 5,
-    description: 'Netflix',
-    amount: -30,
-    date: '05/09/2024',
+    date: '09/05/2024',
   },
   {
     id: 4,
     description: 'Netflix',
     amount: -30,
-    date: '05/09/2024',
+    date: '09/05/2024',
+  },
+  {
+    id: 5,
+    description: 'Netflix',
+    amount: -30,
+    date: '09/05/2024',
+  },
+  {
+    id: 6,
+    description: 'Netflix',
+    amount: -30,
+    date: '09/05/2024',
   },
 ];
 
 export default function MoneyScreen() {
-  // Função para renderizar cada item do histórico de pagamentos
+  // Function to render each item in the payment history
   const renderPaymentItem = ({ item }: { item: PaymentHistory }) => (
     <TouchableOpacity style={styles.historyItem}>
-      <View style={{flexDirection: 'column'}}>
+      <View style={{ flexDirection: 'column' }}>
         <Text style={styles.historyDescription}>{item.description}</Text>
         <Text style={styles.historyDate}>{item.date}</Text>
       </View>
       <Text style={[styles.historyAmount, { color: item.amount < 0 ? 'red' : 'green' }]}>
-        {item.amount < 0 ? `- R$ ${Math.abs(item.amount).toFixed(2)}` : `R$ ${item.amount.toFixed(2)}`}
+        {item.amount < 0 ? `- $${Math.abs(item.amount).toFixed(2)}` : `$${item.amount.toFixed(2)}`}
       </Text>
     </TouchableOpacity>
   );
@@ -76,7 +76,7 @@ export default function MoneyScreen() {
         <TouchableOpacity style={styles.balanceTouchable}>
           <View style={styles.balanceContainer}>
             <Text style={styles.balanceText}>Balance</Text>
-            <Text style={styles.balanceValue}>R$ 0,00</Text>
+            <Text style={styles.balanceValue}>$0.00</Text>
           </View>
           <Ionicons style={styles.icon} name="chevron-forward-outline" size={28} color={Theme.TERTIARY} />
         </TouchableOpacity>
@@ -86,7 +86,7 @@ export default function MoneyScreen() {
             <View style={styles.iconContainer}>
               <FontAwesome6 name="money-bill-transfer" size={32} color={Theme.TERTIARY} />
             </View>
-            <Text style={styles.balanceText}>Cash in and Cash out</Text>
+            <Text style={styles.balanceText}>Cash In & Out</Text>
           </TouchableOpacity>
         </View>
         <View style={styles.payment}>
@@ -98,7 +98,7 @@ export default function MoneyScreen() {
         <FlatList
           data={paymentHistory}
           renderItem={renderPaymentItem}
-          keyExtractor={item => item.id.toString()}
+          keyExtractor={(item) => item.id.toString()}
           style={styles.historyList}
         />
       </View>
@@ -190,7 +190,7 @@ const styles = StyleSheet.create({
     padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: Theme.INPUT,
-    backgroundColor: Theme.SECONDARY
+    backgroundColor: Theme.SECONDARY,
   },
   historyDescription: {
     fontSize: 16,

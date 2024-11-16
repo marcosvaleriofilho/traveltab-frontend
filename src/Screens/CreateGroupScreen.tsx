@@ -33,7 +33,7 @@ export default function CreateGroupScreen() {
     }, []);
 
     const formatDate = (date: Date | undefined) => {
-        return date ? date.toLocaleDateString('pt-BR') : 'Selecione a data';
+        return date ? date.toLocaleDateString('pt-BR') : 'Select the date.';
     };
 
     const showStartDatePicker = () => setShowStartPicker(true);
@@ -56,12 +56,12 @@ export default function CreateGroupScreen() {
     const addMemberByEmail = async (email: string) => {
         const emailExists = members.some((member) => member.email === email);
         if (emailExists) {
-            Alert.alert('Atenção', 'Este e-mail já foi adicionado ao grupo.');
+            Alert.alert('Attention', 'This e-mail it`s already at the group.');
             return;
         }
 
         if (email === userEmail) {
-            Alert.alert('Atenção', 'Você já está incluído no grupo automaticamente.');
+            Alert.alert('Attention', 'You`re already at the group.');
             return;
         }
 
@@ -78,11 +78,11 @@ export default function CreateGroupScreen() {
                 const userId = user.id;
                 setMembers((prevMembers) => [...prevMembers, { id: userId, email }]);
             } else {
-                Alert.alert('Erro', 'Usuário não encontrado ou erro ao buscar o ID.');
+                Alert.alert('Error', 'Unknown user while searching for ID.');
             }
         } catch (error) {
-            console.error('Erro ao buscar o ID do usuário:', error);
-            Alert.alert('Erro', 'Não foi possível buscar o ID do usuário.');
+            console.error('Error searching user ID:', error);
+            Alert.alert('Error', 'It was not possible to find user ID.');
         }
     };
 
@@ -96,7 +96,7 @@ export default function CreateGroupScreen() {
     const handleRemoveMember = (id: string) => {
         const memberToRemove = members.find((member) => member.id === id);
         if (memberToRemove && memberToRemove.email === userEmail) {
-            Alert.alert('Atenção', 'Você não pode remover você mesmo.');
+            Alert.alert('Atenttion', 'You can not remove yourself.');
             return;
         }
         setMembers((prevMembers) => prevMembers.filter((member) => member.id !== id));
@@ -104,12 +104,12 @@ export default function CreateGroupScreen() {
 
     const handleCreateGroup = async () => {
         if (!name) {
-            Alert.alert('Erro', 'O nome do grupo é obrigatório.');
+            Alert.alert('Error', 'The group name is required.');
             return;
         }
 
         if (type === GroupType.VIAGEM && (!startDate || !endDate)) {
-            Alert.alert('Erro', 'Grupos do tipo "Viagem" precisam de datas de início e fim.');
+            Alert.alert('Error', 'Groups with the type "Travel" must have start and end dates.');
             return;
         }
 
@@ -133,16 +133,16 @@ export default function CreateGroupScreen() {
             });
 
             if (response.ok) {
-                Alert.alert('Sucesso', 'Grupo criado com sucesso!');
+                Alert.alert('Success', 'Group created with success!');
                 navigation.goBack();
             } else {
                 const errorMessage = await response.text();
-                console.log('Erro do servidor:', errorMessage);
-                Alert.alert('Erro', errorMessage || 'Falha ao criar o grupo.');
+                console.log('Error at the server:', errorMessage);
+                Alert.alert('Error', errorMessage || 'Fail to create the group.');
             }
         } catch (error) {
-            console.error('Erro na requisição:', error);
-            Alert.alert('Erro', 'Não foi possível conectar ao servidor.');
+            console.error('Error while requiring:', error);
+            Alert.alert('Error', 'Not possible to connect into the server.');
         }
     };
 
