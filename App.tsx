@@ -74,9 +74,8 @@ function MainTabs() {
       })}
     >
       <Tab.Screen name="Tasks" component={TasksScreen} />
-      <Tab.Screen name="Balance" component={MoneyScreen} />
       <Tab.Screen name="Groups" component={MainScreen} />
-      <Tab.Screen name="Profile" component={ProfileScreen} />
+      <Tab.Screen name="Balance" component={MoneyScreen} />
     </Tab.Navigator>
   );
 }

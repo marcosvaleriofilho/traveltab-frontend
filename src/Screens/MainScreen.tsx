@@ -1,5 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+  Modal,
+  TouchableWithoutFeedback,
+} from 'react-native';
 import { Theme } from '../../constants/Theme';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp, useFocusEffect } from '@react-navigation/native';
@@ -9,7 +18,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 interface Group {
   id: string;
   nameGroup: string;
-  groupMembers: string[]; // Array of member IDs
+  groupMembers: string[];
   startDate?: string;
   endDate?: string;
 }
@@ -17,6 +26,7 @@ interface Group {
 export default function MainScreen() {
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(false);
+  const [menuVisible, setMenuVisible] = useState(false); // Controle do menu
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const formatDate = (date: string | undefined) => {
@@ -62,6 +72,38 @@ export default function MainScreen() {
     }
   };
 
+  const handleLogout = async () => {
+    setMenuVisible(false); // Fechar o menu
+    Alert.alert(
+      'Log Out',
+      'Are you sure you want to log out?',
+      [
+        {
+          text: 'Cancel',
+          onPress: () => console.log('Logout canceled'),
+          style: 'cancel',
+        },
+        {
+          text: 'Log Out',
+          onPress: async () => {
+            try {
+              await AsyncStorage.removeItem('authToken');
+              await AsyncStorage.removeItem('userData');
+            } catch (error) {
+              console.error('Error clearing AsyncStorage:', error);
+            }
+            navigation.reset({
+              index: 0,
+              routes: [{ name: 'Login' }],
+            });
+          },
+          style: 'destructive',
+        },
+      ],
+      { cancelable: false }
+    );
+  };
+
   useFocusEffect(
     useCallback(() => {
       fetchGroups();
@@ -72,12 +114,11 @@ export default function MainScreen() {
     <View style={styles.container}>
       <View style={styles.setting}>
         <Text style={styles.title}>My Groups</Text>
-        <TouchableOpacity
-          style={{ alignItems: 'center', justifyContent: 'center' }}
-          onPress={() => navigation.navigate('CreateGroupScreen')}
-        >
-          <Ionicons name="add" size={32} color="white" />
-        </TouchableOpacity>
+        <View style={styles.menuContainer}>
+          <TouchableOpacity onPress={() => setMenuVisible(true)}>
+            <Ionicons name="ellipsis-vertical" size={24} color="white" />
+          </TouchableOpacity>
+        </View>
       </View>
 
       <View style={{ width: '100%', flex: 1 }}>
@@ -106,6 +147,31 @@ export default function MainScreen() {
           />
         )}
       </View>
+
+      {/* Menu Modal */}
+      <Modal
+        visible={menuVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setMenuVisible(false)}
+      >
+        <TouchableWithoutFeedback onPress={() => setMenuVisible(false)}>
+          <View style={styles.modalBackdrop}>
+            <View style={styles.modalContainer}>
+              <TouchableOpacity style={styles.modalOption} onPress={handleLogout}>
+                <Text style={[styles.modalText, { color: 'red' }]}>Log Out</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.modalOption}
+                onPress={() => setMenuVisible(false)}
+              >
+                <Text style={styles.modalText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
+
     </View>
   );
 }
@@ -159,5 +225,31 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Regular',
     textAlign: 'center',
     marginTop: 20,
+  },
+  menuContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalOption: {
+    backgroundColor: 'white',
+    padding: 16,
+    borderTopWidth: 1,
+    borderColor: 'lightgray',
+  },
+  modalText: {
+    fontFamily: 'Poppins-Bold',
+    fontSize: 18,
+    color: Theme.PRIMARY,
+    textAlign: 'center'
+  },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
   },
 });
