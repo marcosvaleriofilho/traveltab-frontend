@@ -50,8 +50,6 @@ function MainTabs() {
                 return 'home-outline';
               case 'Profile':
                 return 'person-outline';
-              case 'Tasks':
-                return 'checkbox-outline';
               case 'Balance':
                 return 'cash-outline';
               default:
@@ -73,9 +71,9 @@ function MainTabs() {
         headerShown: false,
       })}
     >
-      <Tab.Screen name="Tasks" component={TasksScreen} />
-      <Tab.Screen name="Groups" component={MainScreen} />
       <Tab.Screen name="Balance" component={MoneyScreen} />
+      <Tab.Screen name="Groups" component={MainScreen} />
+      <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );
 }

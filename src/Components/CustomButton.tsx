@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, GestureResponderEvent, TextStyle } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet, GestureResponderEvent, TextStyle, ViewStyle } from 'react-native';
 
 interface CustomButtonProps {
     onPress: (event: GestureResponderEvent) => void;
@@ -8,7 +8,8 @@ interface CustomButtonProps {
     textColor?: string; // Cor do texto
     borderColor?: string; // Cor da borda
     disabled?: boolean; // Propriedade para desabilitar o botão
-    textStyle?: TextStyle; // Novo: Estilo customizado para o texto
+    textStyle?: TextStyle; // Estilo customizado para o texto
+    buttonStyle?: ViewStyle; // Novo: Estilo customizado para o botão
 }
 
 const CustomButton: React.FC<CustomButtonProps> = ({
@@ -18,22 +19,24 @@ const CustomButton: React.FC<CustomButtonProps> = ({
     textColor = 'white',
     borderColor = 'white',
     disabled = false, // Definindo valor padrão como false
-    textStyle, // Novo: Permitir estilo customizado para o texto
+    textStyle,
+    buttonStyle, // Novo: Permitir estilo customizado para o botão
 }) => {
     return (
         <TouchableOpacity 
             style={[
                 styles.button, 
                 { backgroundColor: color, borderColor: borderColor },
+                buttonStyle, // Aplica estilos customizados passados como props
                 disabled && styles.disabledButton // Aplica estilo de desativado se o botão estiver desativado
             ]}
             onPress={onPress}
-            disabled={disabled} // Adicionando funcionalidade de desativado
+            disabled={disabled}
         >
-            <Text style={[styles.buttonText, { color: textColor }, textStyle]}>{title}</Text> 
+            <Text style={[styles.buttonText, { color: textColor }, textStyle]}>{title}</Text>
         </TouchableOpacity>
     );
-}
+};
 
 const styles = StyleSheet.create({
     button: {
@@ -42,14 +45,14 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         alignItems: 'center',
         justifyContent: 'center',
-        borderWidth: 2, // Espessura da borda
+        borderWidth: 2,
     },
     buttonText: {
         fontSize: 20,
-        fontFamily: "Poppins-Bold"
+        fontFamily: "Poppins-Bold",
     },
     disabledButton: {
-        opacity: 0.5, // Botão fica mais transparente quando desativado
+        opacity: 0.5,
     },
 });
 
