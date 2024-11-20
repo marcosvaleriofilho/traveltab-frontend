@@ -210,9 +210,18 @@ export default function GroupDetailScreen() {
           buttonStyle={styles.flexButton} // Define largura flexível
           textStyle={{ fontSize: 16 }}
           />
+          <CustomButton
+          title="Tasks"
+          color={Theme.TERTIARY}
+          textColor={Theme.SECONDARY}
+          onPress={() => navigation.navigate('TasksScreen', { groupId })} // Navega para a tela de tarefas
+          buttonStyle={styles.flexButton}
+          textStyle={{ fontSize: 16 }}
+        />
+
       </View>
 
-      <Text style={styles.nameInput}>Expenses</Text>
+      <Text style={{color: '#0000'}}>Expenses</Text>
 
       {loading ? (
         <Text>Loading expenses...</Text>

@@ -63,57 +63,69 @@ export default function AddExpenseScreen({ route, navigation }: any) {
 
   const handleAddExpense = async () => {
     if (!description || !amount || selectedMembers.length === 0) {
-      Alert.alert('Error', 'Please fill all fields and select members.');
-      return;
+        Alert.alert('Error', 'Please fill all fields and select members.');
+        return;
     }
 
     const assignedUsers: { [key: string]: number } = {};
 
     if (isSplitEvenly) {
-      const splitValue = parseFloat(amount) / selectedMembers.length;
-      selectedMembers.forEach((member) => {
-        assignedUsers[member.id] = splitValue;
-      });
+        const splitValue = parseFloat(amount) / selectedMembers.length;
+        selectedMembers.forEach((member) => {
+            assignedUsers[member.id] = splitValue;
+        });
     } else {
-      selectedMembers.forEach((member) => {
-        const value = parseFloat(member.value || '0');
-        assignedUsers[member.id] = value;
-      });
+        let totalSplit = 0;
+
+        selectedMembers.forEach((member) => {
+            const value = parseFloat(member.value || '0');
+            assignedUsers[member.id] = value;
+            totalSplit += value;
+        });
+
+        if (totalSplit !== parseFloat(amount)) {
+            Alert.alert(
+                'Error',
+                `The total split amount (${totalSplit.toFixed(2)}) does not match the expense amount (${parseFloat(amount).toFixed(2)}).`
+            );
+            return;
+        }
     }
 
     const expenseData = {
-      description,
-      balance: parseFloat(amount),
-      groupId,
-      assignedUsers,
-      assignedGroups: [groupId],
-      isSplitEvenly,
+        description,
+        balance: parseFloat(amount),
+        groupId,
+        assignedUsers,
+        assignedGroups: [groupId],
+        isSplitEvenly,
     };
 
     console.log('Expense data to be sent:', expenseData);
 
     try {
-      const response = await fetch(`http://10.0.2.2:8080/expenses/create`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(expenseData),
-      });
+        const response = await fetch(`http://10.0.2.2:8080/expenses/create`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(expenseData),
+        });
 
-      if (response.ok) {
-        Alert.alert('Success', 'Expense successfully added!');
-        navigation.goBack();
-      } else {
-        const errorMessage = await response.text();
-        console.error('Server error:', errorMessage);
-        Alert.alert('Error', errorMessage || 'Failed to add expense.');
-      }
+        if (response.ok) {
+            Alert.alert('Success', 'Expense successfully added!');
+            navigation.goBack();
+        } else {
+            const errorMessage = await response.text();
+            console.error('Server error:', errorMessage);
+            Alert.alert('Error', errorMessage || 'Failed to add expense.');
+        }
     } catch (error) {
-      console.error('Error adding expense:', error);
-      Alert.alert('Error', `Error adding expense: ${error}`);
+        console.error('Error adding expense:', error);
+        Alert.alert('Error', `Error adding expense: ${error}`);
     }
-  };
+};
+
 
   const toggleMemberSelection = (member: { id: string; email: string }) => {
     const isSelected = selectedMembers.some((m) => m.id === member.id);

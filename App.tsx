@@ -34,6 +34,7 @@ export type RootStackParamList = {
   ManageMembersScreen: { groupId: string }; // Renomeado para "Gerenciar Membros"
   AddExpenseScreen: { groupId: string };
   GroupExpensesScreen: { groupId: string };
+  TasksScreen: { groupId: string };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -206,6 +207,22 @@ export default function App() {
               },
             }}
           />
+          <Stack.Screen
+            name="TasksScreen"
+            component={TasksScreen}
+            options={{
+              title: 'Tasks',
+              headerStyle: {
+                backgroundColor: Theme.TERTIARY,
+              },
+              headerTintColor: '#fff',
+              headerTitleStyle: {
+                fontWeight: 'bold',
+                fontFamily: 'Poppins-Bold',
+              },
+            }}
+          />
+
         </Stack.Navigator>
       </SafeAreaView>
       <StatusBar hidden={true} />
