@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, Alert, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Alert, FlatList, TouchableOpacity } from 'react-native';
+import {CustomInput} from '../Components/CustomInput'; // Substitua com o caminho correto do componente
 import CustomButton from '../Components/CustomButton';
 import { Theme } from '../../constants/Theme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -152,13 +153,10 @@ export default function ManageMembersScreen({ route, navigation }: any) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>Manage Group Members</Text>
-
-      <TextInput
-        style={styles.input}
-        placeholder="Member email"
+      <CustomInput
+        label="Member email"
         value={memberEmail}
-        onChangeText={setMemberEmail}
+        onChange={setMemberEmail}
       />
       <CustomButton
         title="Add Member"
@@ -191,19 +189,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  label: {
-    fontSize: 18,
-    fontFamily: 'Poppins-Bold',
-    marginBottom: 20,
-  },
-  input: {
-    width: '100%',
-    padding: 10,
-    borderColor: Theme.INPUT,
-    borderWidth: 1,
-    borderRadius: 8,
-    marginBottom: 20,
-  },
+  
   memberContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',

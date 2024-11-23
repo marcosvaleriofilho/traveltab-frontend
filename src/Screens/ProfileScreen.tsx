@@ -57,11 +57,7 @@ export default function ProfileScreen() {
       <TouchableOpacity style={styles.button}>
         <Text style={styles.buttontext}>Change Password</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.button}>
-        <Text style={styles.buttontext}>Phone</Text>
-      </TouchableOpacity>
-      {/* Logout Button */}
-      <TouchableOpacity
+     <TouchableOpacity
         style={[styles.button, { justifyContent: 'center', borderBottomWidth: 0 }]}
         onPress={handleLogout}
       >

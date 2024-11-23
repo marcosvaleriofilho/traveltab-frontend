@@ -199,7 +199,7 @@ export default function GroupDetailScreen() {
           textColor={Theme.SECONDARY}
           onPress={() => navigation.navigate('ManageMembersScreen', { groupId })}
           buttonStyle={styles.flexButton} // Define largura flexível
-          textStyle={{ fontSize: 16 }}
+          textStyle={{ fontSize: 14 }}
           />
 
         <CustomButton
@@ -208,7 +208,7 @@ export default function GroupDetailScreen() {
           textColor={Theme.SECONDARY}
           onPress={() => navigation.navigate('AddExpenseScreen', { groupId })}
           buttonStyle={styles.flexButton} // Define largura flexível
-          textStyle={{ fontSize: 16 }}
+          textStyle={{ fontSize: 14 }}
           />
           <CustomButton
           title="Tasks"
@@ -216,7 +216,7 @@ export default function GroupDetailScreen() {
           textColor={Theme.SECONDARY}
           onPress={() => navigation.navigate('TasksScreen', { groupId })} // Navega para a tela de tarefas
           buttonStyle={styles.flexButton}
-          textStyle={{ fontSize: 16 }}
+          textStyle={{ fontSize: 14 }}
         />
 
       </View>
@@ -335,7 +335,7 @@ const styles = StyleSheet.create({
   },
   assignedLabel: {
     fontSize: 14,
-    fontFamily: 'Poppins-Bold',
+    fontFamily: 'Poppins-SemiBold',
     marginTop: 10,
   },
   memberContainer: {
