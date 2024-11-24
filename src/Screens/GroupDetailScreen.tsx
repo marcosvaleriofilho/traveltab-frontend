@@ -26,7 +26,7 @@ interface AssignedUser {
 }
 
 interface Expense {
-  _id: string;
+  id: string;
   description: string;
   balance: number;
   assignedUsers: AssignedUser[];
@@ -43,6 +43,13 @@ export default function GroupDetailScreen() {
   const [userEmails, setUserEmails] = useState<{ [key: string]: string }>({});
   const [loading, setLoading] = useState(true);
   const [menuVisible, setMenuVisible] = useState(false);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchGroupDetails();
+    }, [groupId])
+  );
+  
 
   const fetchGroupDetails = async () => {
     try {
@@ -150,12 +157,30 @@ export default function GroupDetailScreen() {
   }, [navigation, menuVisible]);
 
   const renderExpenseItem = ({ item }: { item: Expense }) => (
-    <View style={styles.item}>
+    <TouchableOpacity
+    onPress={() =>
+      navigation.navigate('ManageExpenseScreen', {
+        expenseId: item.id, // Corrija para usar 'id' em vez de '_id'
+        groupId,
+        description: item.description,
+        balance: item.balance,
+        isSplitEvenly: item.assignedUsers.length === 1,
+        assignedUsers: item.assignedUsers.map((user) => ({
+          userId: user.userId,
+          value: user.valorInDebt,
+        })),
+      })
+    }
+    
+   
+    
+    
+      style={styles.item}
+    >
       <View style={{ flexDirection: 'row', width: '100%', justifyContent: 'space-between' }}>
         <Text style={styles.description}>{item.description}</Text>
         <Text style={styles.amount}>R$ {item.balance.toFixed(2)}</Text>
       </View>
-
       <Text style={styles.assignedLabel}>Attributed to:</Text>
       {item.assignedUsers.map((user) => (
         <View key={user.userId} style={styles.memberContainer}>
@@ -163,8 +188,12 @@ export default function GroupDetailScreen() {
           <Text style={styles.memberDebt}>R${user.valorInDebt.toFixed(2)}</Text>
         </View>
       ))}
-    </View>
+    </TouchableOpacity>
   );
+  
+  
+  
+  
 
   return (
     <View style={styles.container}>
@@ -231,7 +260,7 @@ export default function GroupDetailScreen() {
         <FlatList
           data={expenses}
           renderItem={renderExpenseItem}
-          keyExtractor={(item) => item._id || item.description}
+          keyExtractor={(item) => item.id || item.description}
         />
       )}
 

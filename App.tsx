@@ -21,6 +21,7 @@ import GroupExpensesScreen from './src/Screens/GroupExpensesScreen';
 import { Ionicons } from '@expo/vector-icons';
 import { Theme } from './constants/Theme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import ManageExpenseScreen from './src/Screens/ManageExpenseScreen';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -35,7 +36,14 @@ export type RootStackParamList = {
   AddExpenseScreen: { groupId: string };
   GroupExpensesScreen: { groupId: string };
   TasksScreen: { groupId: string };
-};
+  ManageExpenseScreen: {
+    expenseId: string;
+    groupId: string;
+    description: string;
+    balance: number;
+    isSplitEvenly: boolean;
+    assignedUsers: { userId: string; value: number }[];
+  };};
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator();
@@ -222,6 +230,22 @@ export default function App() {
               },
             }}
           />
+          <Stack.Screen
+            name="ManageExpenseScreen"
+            component={ManageExpenseScreen}
+            options={{
+              title: 'Manage Expense',
+              headerStyle: {
+                backgroundColor: Theme.TERTIARY,
+              },
+              headerTintColor: '#fff',
+              headerTitleStyle: {
+                fontWeight: 'bold',
+                fontFamily: 'Poppins-Bold',
+              },
+            }}
+          />
+
 
         </Stack.Navigator>
       </SafeAreaView>
