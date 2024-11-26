@@ -42,7 +42,9 @@ export type RootStackParamList = {
     description: string;
     balance: number;
     isSplitEvenly: boolean;
-    assignedUsers: { userId: string; value: number }[];
+    assignedUsers: {
+      isPaid: boolean; userId: string; value: number 
+}[];
   };};
 
 const Stack = createNativeStackNavigator<RootStackParamList>();

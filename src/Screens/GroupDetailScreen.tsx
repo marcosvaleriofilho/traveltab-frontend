@@ -21,6 +21,7 @@ type GroupDetailNavigationProp = NativeStackNavigationProp<RootStackParamList, '
 type GroupDetailRouteProp = RouteProp<RootStackParamList, 'GroupDetailScreen'>;
 
 interface AssignedUser {
+  isPaid: boolean;
   userId: string;
   valorInDebt: number;
 }
@@ -160,7 +161,7 @@ export default function GroupDetailScreen() {
     <TouchableOpacity
     onPress={() =>
       navigation.navigate('ManageExpenseScreen', {
-        expenseId: item.id, // Corrija para usar 'id' em vez de '_id'
+        expenseId: item.id, 
         groupId,
         description: item.description,
         balance: item.balance,
@@ -168,11 +169,10 @@ export default function GroupDetailScreen() {
         assignedUsers: item.assignedUsers.map((user) => ({
           userId: user.userId,
           value: user.valorInDebt,
+          isPaid: user.isPaid, // Certifique-se de que este valor está correto
         })),
-      })
+      })      
     }
-    
-   
     
     
       style={styles.item}

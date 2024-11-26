@@ -7,7 +7,6 @@ import {
   FlatList,
   TouchableOpacity,
   ActivityIndicator,
-  TextInput,
 } from 'react-native';
 import { RouteProp, useRoute, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -15,6 +14,7 @@ import { RootStackParamList } from '../../App';
 import CustomButton from '../Components/CustomButton';
 import { CustomInput } from '../Components/CustomInput';
 import { Theme } from '../../constants/Theme';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 type ManageExpenseRouteProp = RouteProp<RootStackParamList, 'ManageExpenseScreen'>;
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'ManageExpenseScreen'>;
@@ -23,6 +23,7 @@ interface AssignedUser {
   id: string;
   email: string;
   value?: string;
+  isPaid?: boolean;
 }
 
 export default function ManageExpenseScreen() {
@@ -37,13 +38,14 @@ export default function ManageExpenseScreen() {
   const [selectedMembers, setSelectedMembers] = useState<AssignedUser[]>([]);
   const [isEvenSplit, setIsEvenSplit] = useState<boolean>(isSplitEvenly || true);
   const [loading, setLoading] = useState(false);
-  const newAssignedUsersMap: { [key: string]: number } = {};
-
+  const [loadingUserId, setLoadingUserId] = useState<string | null>(null);
 
   useEffect(() => {
-    console.log('Received expenseId:', expenseId);
-  }, [expenseId]);
-  
+    console.log('Assigned Users:', assignedUsers);
+    console.log('Selected Members State:', selectedMembers);
+  }, [selectedMembers]);
+
+
   useEffect(() => {
     if (assignedUsers) {
       setSelectedMembers(
@@ -51,6 +53,7 @@ export default function ManageExpenseScreen() {
           id: user.userId,
           email: 'Loading...',
           value: user.value.toFixed(2),
+          isPaid: user.isPaid, // Atualiza o estado inicial com base no MongoDB
         }))
       );
     }
@@ -78,6 +81,7 @@ export default function ManageExpenseScreen() {
           prevSelected.map((member) => ({
             ...member,
             email: membersWithDetails.find((m) => m.id === member.id)?.email || 'Unknown',
+            isPaid: member.isPaid, // Certifique-se de manter o estado de pagamento
           }))
         );
       } else {
@@ -88,27 +92,112 @@ export default function ManageExpenseScreen() {
     }
   };
 
+  const handleMarkPaid = async (userId: string) => {
+    const user = selectedMembers.find((member) => member.id === userId);
+    if (!user) return;
+
+    const newPaidStatus = !user.isPaid; // Inverte o estado atual
+
+    console.log(`Tentando atualizar o status de pagamento para ${newPaidStatus}:`, {
+      expenseId,
+      userId,
+    });
+
+    setLoadingUserId(userId);
+
+    try {
+      const response = await fetch(
+        `http://10.0.2.2:8080/expenses/markPaid/${expenseId}/${userId}`,
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ isPaid: newPaidStatus }), // Passa o novo status no corpo
+        }
+      );
+
+      if (response.ok) {
+        console.log(
+          `Usuário ${newPaidStatus ? 'marcado como pago' : 'desmarcado'} com sucesso:`,
+          userId
+        );
+        Alert.alert('Success', `User ${newPaidStatus ? 'marked as paid' : 'marked as unpaid'}!`);
+
+        // Atualiza o estado localmente
+        setSelectedMembers((prevMembers) =>
+          prevMembers.map((member) =>
+            member.id === userId ? { ...member, isPaid: newPaidStatus } : member
+          )
+        );
+      } else {
+        const errorText = await response.text();
+        console.error('Erro ao atualizar status de pagamento:', errorText);
+        Alert.alert('Error', `Failed to update payment status: ${errorText}`);
+      }
+    } catch (error) {
+      console.error('Erro na função handleMarkPaid:', error);
+      Alert.alert('Error', `Failed to update payment status: ${error}`);
+    } finally {
+      setLoadingUserId(null);
+    }
+  };
+
+  const handleDeleteExpense = async () => {
+    Alert.alert(
+      'Delete Expense',
+      'Are you sure you want to delete this expense? This action cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            setLoading(true);
+            try {
+              const response = await fetch(`http://10.0.2.2:8080/expenses/delete/${expenseId}`, {
+                method: 'DELETE',
+              });
+
+              if (response.ok) {
+                Alert.alert('Success', 'Expense deleted successfully!');
+                // Navegar de volta para os detalhes do grupo após deletar a despesa
+                navigation.navigate('GroupDetailScreen', { groupId });
+              } else {
+                const errorText = await response.text();
+                console.error('Erro do backend ao deletar despesa:', errorText);
+                Alert.alert('Error', `Failed to delete expense: ${errorText}`);
+              }
+            } catch (error) {
+              console.error('Erro na função handleDeleteExpense:', error);
+              Alert.alert('Error', `Failed to delete expense: ${error}`);
+            } finally {
+              setLoading(false);
+            }
+          },
+        },
+      ]
+    );
+  };
+
+
   const handleSaveExpense = async () => {
     if (!expenseDescription || !amount) {
       Alert.alert('Error', 'Description and amount are required.');
       return;
     }
-  
+
     if (!selectedMembers.length) {
       Alert.alert('Error', 'At least one member must be selected.');
       return;
     }
-  
-    // Tipar o mapa explicitamente
-    const newAssignedUsersMap: { [key: string]: number } = {}; // Mapa de IDs para valores
+
+    const newAssignedUsersMap: { [key: string]: number } = {};
     selectedMembers.forEach((member) => {
       const value = parseFloat(member.value || '0');
-      newAssignedUsersMap[member.id] = value; // Adiciona ao mapa
+      newAssignedUsersMap[member.id] = value;
     });
-  
-    // Reduzir para somar os valores atribuídos
+
     const totalAssigned = Object.values(newAssignedUsersMap).reduce((sum, value) => sum + value, 0);
-  
+
     if (!isEvenSplit && totalAssigned !== parseFloat(amount)) {
       Alert.alert(
         'Error',
@@ -116,19 +205,23 @@ export default function ManageExpenseScreen() {
       );
       return;
     }
-  
+
+    // Verifique se todos os usuários atribuídos estão pagos
+    const allUsersPaid = selectedMembers.every((member) => member.isPaid);
+
     const updatedExpensePayload = {
       updateExpensesRequestDTO: {
         description: expenseDescription.trim(),
         balance: parseFloat(amount),
-        isPaid: false,
+        isPaid: allUsersPaid, // Envia o estado correto
       },
-      newAssignedUsersMap, // Mapa com userId e valor
+      newAssignedUsersMap,
       splitEvenly: isEvenSplit,
     };
-  
+
+
     console.log('Payload enviado:', updatedExpensePayload);
-  
+
     setLoading(true);
     try {
       const response = await fetch(`http://10.0.2.2:8080/expenses/update/${expenseId}`, {
@@ -138,7 +231,7 @@ export default function ManageExpenseScreen() {
         },
         body: JSON.stringify(updatedExpensePayload),
       });
-  
+
       if (response.ok) {
         Alert.alert('Success', 'Expense updated successfully!');
         navigation.goBack();
@@ -154,84 +247,30 @@ export default function ManageExpenseScreen() {
       setLoading(false);
     }
   };
-  
-  
-  
 
-  const handleDeleteExpense = async () => {
-    Alert.alert(
-      'Delete Expense',
-      'Are you sure you want to delete this expense? This action cannot be undone.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            setLoading(true);
-            try {
-              // Chamada para deletar a despesa
-              const response = await fetch(`http://10.0.2.2:8080/expenses/delete/${expenseId}`, {
-                method: 'DELETE',
-              });
-  
-              if (response.ok) {
-                Alert.alert('Success', 'Expense deleted successfully!');
-                // Atualize a tela do grupo ao retornar
-                navigation.navigate('GroupDetailScreen', { groupId });
-              } else {
-                const errorText = await response.text();
-                console.error('Error deleting expense:', errorText);
-                Alert.alert('Error', `Failed to delete expense: ${errorText}`);
-              }
-            } catch (error) {
-              if (error instanceof Error) {
-                console.error('Error deleting expense:', error);
-                Alert.alert('Error', `Failed to delete expense: ${error.message}`);
-              } else {
-                console.error('Unknown error:', error);
-                Alert.alert('Error', 'An unknown error occurred.');
-              }
-            } finally {
-              setLoading(false);
-            }
-          },
-        },
-      ]
-    );
-  };
-  
 
-  const toggleMemberSelection = (member: { id: string; email: string }) => {
-    const isSelected = selectedMembers.some((m) => m.id === member.id);
-
-    if (isSelected) {
-      setSelectedMembers((prevSelected) => prevSelected.filter((m) => m.id !== member.id));
-    } else {
-      setSelectedMembers((prevSelected) => [...prevSelected, { ...member }]);
-    }
-  };
 
   const renderMemberItem = ({ item }: { item: { id: string; email: string } }) => {
-    const isSelected = selectedMembers.some((m) => m.id === item.id);
+    const userStatus = selectedMembers.find((m) => m.id === item.id)?.isPaid;
 
     return (
-      <View style={[styles.memberContainer, isSelected && { backgroundColor: Theme.PASTEL }]}>
-        <TouchableOpacity onPress={() => toggleMemberSelection(item)} style={{ flex: 1 }}>
-          <Text style={styles.memberText}>{item.email}</Text>
-        </TouchableOpacity>
-        {!isEvenSplit && isSelected && (
-          <TextInput
-            style={styles.input}
-            keyboardType="numeric"
-            value={selectedMembers.find((m) => m.id === item.id)?.value || ''}
-            onChangeText={(value) =>
-              setSelectedMembers((prev) =>
-                prev.map((m) => (m.id === item.id ? { ...m, value } : m))
-              )
-            }
+      <View style={styles.memberContainer}>
+        <TouchableOpacity
+          style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}
+          onPress={() => handleMarkPaid(item.id)}
+          disabled={loadingUserId === item.id}
+        >
+          <MaterialCommunityIcons
+            name={userStatus ? 'checkbox-marked' : 'checkbox-blank-outline'}
+            size={24}
+            color={userStatus ? 'green' : 'gray'}
           />
-        )}
+          <Text style={[styles.memberText, { marginLeft: 10 }]}>{item.email}</Text>
+          {loadingUserId === item.id && (
+            <ActivityIndicator size="small" color="gray" style={{ marginLeft: 10 }} />
+          )}
+        </TouchableOpacity>
+
       </View>
     );
   };
@@ -291,8 +330,10 @@ export default function ManageExpenseScreen() {
           />
         </>
       )}
+
     </View>
   );
+
 }
 
 const styles = StyleSheet.create({
@@ -347,13 +388,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Poppins-Regular',
     flex: 1,
-  },
-  input: {
-    width: 80,
-    fontSize: 14,
-    borderWidth: 1,
-    borderColor: Theme.INPUT,
-    padding: 5,
-    borderRadius: 5,
   },
 });
