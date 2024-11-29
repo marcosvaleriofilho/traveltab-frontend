@@ -50,7 +50,7 @@ export default function GroupDetailScreen() {
       fetchGroupDetails();
     }, [groupId])
   );
-  
+
 
   const fetchGroupDetails = async () => {
     try {
@@ -150,7 +150,7 @@ export default function GroupDetailScreen() {
   useEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <TouchableOpacity onPress={toggleMenu} style={{  }}>
+        <TouchableOpacity onPress={toggleMenu} style={{}}>
           <MaterialCommunityIcons name="dots-vertical" size={24} color={Theme.SECONDARY} />
         </TouchableOpacity>
       ),
@@ -159,22 +159,22 @@ export default function GroupDetailScreen() {
 
   const renderExpenseItem = ({ item }: { item: Expense }) => (
     <TouchableOpacity
-    onPress={() =>
-      navigation.navigate('ManageExpenseScreen', {
-        expenseId: item.id, 
-        groupId,
-        description: item.description,
-        balance: item.balance,
-        isSplitEvenly: item.assignedUsers.length === 1,
-        assignedUsers: item.assignedUsers.map((user) => ({
-          userId: user.userId,
-          value: user.valorInDebt,
-          isPaid: user.isPaid, // Certifique-se de que este valor está correto
-        })),
-      })      
-    }
-    
-    
+      onPress={() =>
+        navigation.navigate('ManageExpenseScreen', {
+          expenseId: item.id,
+          groupId,
+          description: item.description,
+          balance: item.balance,
+          isSplitEvenly: item.assignedUsers.length === 1,
+          assignedUsers: item.assignedUsers.map((user) => ({
+            userId: user.userId,
+            value: user.valorInDebt,
+            isPaid: user.isPaid, // Certifique-se de que este valor está correto
+          })),
+        })
+      }
+
+
       style={styles.item}
     >
       <View style={{ flexDirection: 'row', width: '100%', justifyContent: 'space-between' }}>
@@ -184,21 +184,36 @@ export default function GroupDetailScreen() {
       <Text style={styles.assignedLabel}>Attributed to:</Text>
       {item.assignedUsers.map((user) => (
         <View key={user.userId} style={styles.memberContainer}>
-          <Text style={styles.memberText}>{userEmails[user.userId] || 'Unknown'}</Text>
-          <Text style={styles.memberDebt}>R${user.valorInDebt.toFixed(2)}</Text>
+          <Text
+            style={[
+              styles.memberText,
+              user.isPaid ? styles.paidText : styles.unpaidText, // Aplica o estilo condicional
+            ]}
+          >
+            {userEmails[user.userId] || 'Unknown'}
+          </Text>
+          <Text
+            style={[
+              styles.memberDebt,
+              user.isPaid ? styles.paidText : styles.unpaidText, // Aplica o estilo condicional
+            ]}
+          >
+            R${user.valorInDebt.toFixed(2)}
+          </Text>
         </View>
       ))}
+
     </TouchableOpacity>
   );
-  
-  
-  
-  
+
+
+
+
 
   return (
     <View style={styles.container}>
       <View style={styles.nameContainer}>
-        
+
         {isEditing ? (
           <View style={styles.editContainer}>
             <TextInput
@@ -223,13 +238,13 @@ export default function GroupDetailScreen() {
 
       <View style={styles.buttonRow}>
         <CustomButton
-          title="Manage Members"
+          title="Members"
           color={Theme.TERTIARY}
           textColor={Theme.SECONDARY}
           onPress={() => navigation.navigate('ManageMembersScreen', { groupId })}
           buttonStyle={styles.flexButton} // Define largura flexível
           textStyle={{ fontSize: 14 }}
-          />
+        />
 
         <CustomButton
           title="Add Expense"
@@ -238,8 +253,8 @@ export default function GroupDetailScreen() {
           onPress={() => navigation.navigate('AddExpenseScreen', { groupId })}
           buttonStyle={styles.flexButton} // Define largura flexível
           textStyle={{ fontSize: 14 }}
-          />
-          <CustomButton
+        />
+        <CustomButton
           title="Tasks"
           color={Theme.TERTIARY}
           textColor={Theme.SECONDARY}
@@ -250,7 +265,7 @@ export default function GroupDetailScreen() {
 
       </View>
 
-      <Text style={{color: '#0000'}}>Expenses</Text>
+      <Text style={{ color: '#0000' }}>Expenses</Text>
 
       {loading ? (
         <Text>Loading expenses...</Text>
@@ -293,6 +308,11 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     backgroundColor: '#fff',
+  }, paidText: {
+    color: 'green',
+  },
+  unpaidText: {
+    color: 'red',
   },
   nameContainer: {
     marginBottom: 20,
@@ -338,14 +358,14 @@ const styles = StyleSheet.create({
     marginBottom: 50,
   },
   flexButton: {
-      flex: 1,
-      marginHorizontal: 5, // Espaço entre os botões
+    flex: 1,
+    marginHorizontal: 5, // Espaço entre os botões
   },
-    button: {
-      flex: 1,
-      marginHorizontal: 5,
+  button: {
+    flex: 1,
+    marginHorizontal: 5,
   },
-  
+
   item: {
     padding: 5,
     borderBottomWidth: 1,
@@ -360,7 +380,7 @@ const styles = StyleSheet.create({
   amount: {
     fontSize: 18,
     fontFamily: 'Poppins-Bold',
-    color: 'green',
+    color: Theme.TERTIARY,
   },
   assignedLabel: {
     fontSize: 14,

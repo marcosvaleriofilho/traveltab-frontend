@@ -7,6 +7,8 @@ import {
   FlatList,
   TouchableOpacity,
   ActivityIndicator,
+  Modal,
+  TextInput,
 } from 'react-native';
 import { RouteProp, useRoute, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -40,6 +42,34 @@ export default function ManageExpenseScreen() {
   const [loading, setLoading] = useState(false);
   const [loadingUserId, setLoadingUserId] = useState<string | null>(null);
 
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [currentEditUser, setCurrentEditUser] = useState<AssignedUser | null>(null);
+  const [tempValue, setTempValue] = useState(''); // Valor temporário durante a edição
+
+  const handleOpenEditModal = (user: AssignedUser) => {
+    setCurrentEditUser(user);
+    setTempValue(user.value || ''); // Configura o valor atual para edição
+    setIsModalVisible(true);
+  };
+
+  const handleSaveEdit = () => {
+    if (!currentEditUser) return;
+
+    const updatedValue = parseFloat(tempValue);
+
+    if (isNaN(updatedValue) || updatedValue < 0) {
+      Alert.alert('Invalid Value', 'Please enter a valid positive number.');
+      return;
+    }
+
+    setSelectedMembers((prevMembers) =>
+      prevMembers.map((member) =>
+        member.id === currentEditUser.id ? { ...member, value: tempValue } : member
+      )
+    );
+    setIsModalVisible(false);
+  };
+
   useEffect(() => {
     console.log('Assigned Users:', assignedUsers);
     console.log('Selected Members State:', selectedMembers);
@@ -48,17 +78,23 @@ export default function ManageExpenseScreen() {
 
   useEffect(() => {
     if (assignedUsers) {
+      const isSplitEvenlyCalculated = assignedUsers.every(
+        (user) => user.value === balance / assignedUsers.length
+      );
+      setIsEvenSplit(isSplitEvenlyCalculated);
+
       setSelectedMembers(
         assignedUsers.map((user) => ({
           id: user.userId,
           email: 'Loading...',
           value: user.value.toFixed(2),
-          isPaid: user.isPaid, // Atualiza o estado inicial com base no MongoDB
+          isPaid: user.isPaid,
         }))
       );
     }
     fetchGroupMembers();
   }, []);
+
 
   const fetchGroupMembers = async () => {
     try {
@@ -94,35 +130,25 @@ export default function ManageExpenseScreen() {
 
   const handleMarkPaid = async (userId: string) => {
     const user = selectedMembers.find((member) => member.id === userId);
-    if (!user) return;
-
-    const newPaidStatus = !user.isPaid; // Inverte o estado atual
-
-    console.log(`Tentando atualizar o status de pagamento para ${newPaidStatus}:`, {
-      expenseId,
-      userId,
-    });
-
-    setLoadingUserId(userId);
-
+  
+    if (!user) {
+      Alert.alert('Error', 'User must be added to the expense before marking as paid.');
+      return;
+    }
+  
+    const newPaidStatus = !user.isPaid;
+  
     try {
       const response = await fetch(
         `http://10.0.2.2:8080/expenses/markPaid/${expenseId}/${userId}`,
         {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ isPaid: newPaidStatus }), // Passa o novo status no corpo
+          body: JSON.stringify({ isPaid: newPaidStatus }),
         }
       );
-
+  
       if (response.ok) {
-        console.log(
-          `Usuário ${newPaidStatus ? 'marcado como pago' : 'desmarcado'} com sucesso:`,
-          userId
-        );
-        Alert.alert('Success', `User ${newPaidStatus ? 'marked as paid' : 'marked as unpaid'}!`);
-
-        // Atualiza o estado localmente
         setSelectedMembers((prevMembers) =>
           prevMembers.map((member) =>
             member.id === userId ? { ...member, isPaid: newPaidStatus } : member
@@ -130,16 +156,16 @@ export default function ManageExpenseScreen() {
         );
       } else {
         const errorText = await response.text();
-        console.error('Erro ao atualizar status de pagamento:', errorText);
-        Alert.alert('Error', `Failed to update payment status: ${errorText}`);
+        console.error('Erro ao marcar como pago:', errorText);
+        Alert.alert('Error', `Failed to mark as paid: ${errorText}`);
       }
     } catch (error) {
-      console.error('Erro na função handleMarkPaid:', error);
-      Alert.alert('Error', `Failed to update payment status: ${error}`);
-    } finally {
-      setLoadingUserId(null);
+      console.error('Erro ao marcar como pago:', error);
+      Alert.alert('Error', `Failed to mark as paid: ${error}`);
     }
   };
+  
+  
 
   const handleDeleteExpense = async () => {
     Alert.alert(
@@ -213,12 +239,11 @@ export default function ManageExpenseScreen() {
       updateExpensesRequestDTO: {
         description: expenseDescription.trim(),
         balance: parseFloat(amount),
-        isPaid: allUsersPaid, // Envia o estado correto
+        isPaid: allUsersPaid, // Reflete se todos os usuários estão pagos
       },
       newAssignedUsersMap,
-      splitEvenly: isEvenSplit,
+      splitEvenly: isEvenSplit, // Certifique-se de que o estado está correto
     };
-
 
     console.log('Payload enviado:', updatedExpensePayload);
 
@@ -249,31 +274,106 @@ export default function ManageExpenseScreen() {
   };
 
 
+  const handleToggleExpense = async (userId: string) => {
+    const userInExpense = selectedMembers.some((member) => member.id === userId);
+  
+    const updatedMembers = userInExpense
+      ? selectedMembers.filter((member) => member.id !== userId) // Remove o usuário
+      : [...selectedMembers, { id: userId, email: '', value: '0.00', isPaid: false }]; // Adiciona o usuário
+  
+    setSelectedMembers(updatedMembers);
+  
+    try {
+      // Atualizar no servidor
+      const newAssignedUsersMap: { [key: string]: number } = {};
+      updatedMembers.forEach((member) => {
+        const value = parseFloat(member.value || '0');
+        newAssignedUsersMap[member.id] = value;
+      });
+  
+      const updatedExpensePayload = {
+        updateExpensesRequestDTO: {
+          description: expenseDescription.trim(),
+          balance: parseFloat(amount),
+          isPaid: updatedMembers.every((member) => member.isPaid),
+        },
+        newAssignedUsersMap,
+        splitEvenly: isEvenSplit,
+      };
+  
+      const response = await fetch(`http://10.0.2.2:8080/expenses/update/${expenseId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedExpensePayload),
+      });
+  
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Erro ao atualizar membros no backend:', errorText);
+        Alert.alert('Error', `Failed to update expense members: ${errorText}`);
+      }
+    } catch (error) {
+      console.error('Erro ao atualizar membros no backend:', error);
+      Alert.alert('Error', `Failed to update expense members: ${error}`);
+    }
+  };
+  
+  
 
   const renderMemberItem = ({ item }: { item: { id: string; email: string } }) => {
-    const userStatus = selectedMembers.find((m) => m.id === item.id)?.isPaid;
-
+    const user = selectedMembers.find((m) => m.id === item.id);
+    const isInExpense = !!user;
+    const isPaid = user?.isPaid || false;
+    const userValue = user?.value || '0.00';
+  
     return (
       <View style={styles.memberContainer}>
+        {/* Checkmark */}
         <TouchableOpacity
           style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}
-          onPress={() => handleMarkPaid(item.id)}
-          disabled={loadingUserId === item.id}
+          onPress={() => handleToggleExpense(item.id)}
         >
           <MaterialCommunityIcons
-            name={userStatus ? 'checkbox-marked' : 'checkbox-blank-outline'}
+            name={isInExpense ? 'checkbox-marked' : 'checkbox-blank-outline'}
             size={24}
-            color={userStatus ? 'green' : 'gray'}
+            color={isInExpense ? Theme.TERTIARY : 'gray'}
           />
           <Text style={[styles.memberText, { marginLeft: 10 }]}>{item.email}</Text>
-          {loadingUserId === item.id && (
-            <ActivityIndicator size="small" color="gray" style={{ marginLeft: 10 }} />
-          )}
         </TouchableOpacity>
-
+  
+        {/* Valor e Is Paid */}
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <Text style={styles.memberValue}>R$ {userValue}</Text>
+  
+          {/* Is Paid */}
+          <TouchableOpacity
+            style={styles.paymentIconContainer}
+            onPress={() => handleMarkPaid(item.id)}
+            disabled={!isInExpense || loadingUserId === item.id}
+          >
+            <MaterialCommunityIcons
+              name="cash"
+              size={24}
+              color={isPaid ? 'green' : 'red'}
+            />
+          </TouchableOpacity>
+  
+          {/* Editar Valor */}
+          {!isEvenSplit && (
+            <TouchableOpacity
+              onPress={() => handleOpenEditModal(item)}
+              style={styles.editIconContainer}
+            >
+              <MaterialCommunityIcons name="dots-horizontal" size={24} color="gray" />
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
     );
   };
+  
+  
+  
 
   return (
     <View style={styles.container}>
@@ -330,6 +430,41 @@ export default function ManageExpenseScreen() {
           />
         </>
       )}
+      <Modal
+        visible={isModalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setIsModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>Edit Value</Text>
+            {/* Input simples para editar o valor */}
+            <TextInput
+              style={styles.modalInput}
+              keyboardType="numeric"
+              value={tempValue}
+              onChangeText={setTempValue}
+              placeholder="Enter new value"
+            />
+            {/* Botões de ação */}
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                onPress={() => setIsModalVisible(false)}
+                style={[styles.modalButton, { borderWidth:2,borderColor: Theme.INPUT }]}
+              >
+                <Text style={[styles.modalButtonText,{color: Theme.TERTIARY}]}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={handleSaveEdit}
+                style={[styles.modalButton, { backgroundColor: Theme.TERTIARY }]}
+              >
+                <Text style={styles.modalButtonText}>Save</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
 
     </View>
   );
@@ -357,7 +492,8 @@ const styles = StyleSheet.create({
     width: '45%',
     fontSize: 16,
     borderWidth: 2,
-    borderRadius: 12,
+    marginRight: 20,
+    borderRadius: 10,
     color: Theme.TERTIARY,
     borderColor: Theme.INPUT,
     fontFamily: 'Poppins-Bold',
@@ -366,14 +502,16 @@ const styles = StyleSheet.create({
   },
   selected: {
     fontSize: 16,
+    fontFamily: 'Poppins-Bold',
     borderWidth: 2,
-    borderRadius: 12,
+    borderRadius: 10,
     borderColor: Theme.TERTIARY,
     backgroundColor: Theme.PASTEL,
     color: Theme.TERTIARY,
     textAlign: 'center',
     textAlignVertical: 'center',
     height: 50,
+    marginRight: 20,
     width: '45%',
   },
   memberContainer: {
@@ -389,4 +527,74 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Regular',
     flex: 1,
   },
+  memberValue: {
+    fontSize: 14,
+    fontFamily: 'Poppins-Regular',
+    color: Theme.TERTIARY,
+    marginRight: 15,
+  },
+  editIconContainer: {
+    marginLeft: 15,
+    justifyContent: 'center',
+  },
+
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContainer: {
+    width: '80%',
+    padding: 20,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    elevation: 10,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontFamily: 'Poppins-Bold',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  modalInput: {
+    borderWidth: 1,
+    borderColor: Theme.INPUT,
+    borderRadius: 10,
+    padding: 10,
+    fontSize: 16,
+    fontFamily: 'Poppins-Regular',
+    color: Theme.TERTIARY,
+    marginBottom: 20,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  modalButton: {
+    flex: 1,
+    padding: 12,
+    marginHorizontal: 5,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  modalButtonText: {
+    fontSize: 16,
+    fontFamily: 'Poppins-Bold',
+    color: '#fff',
+  },
+  paymentIconContainer: {
+    marginLeft: 15,
+    alignItems: 'center',
+  },
+  paymentText: {
+    fontSize: 12,
+    fontFamily: 'Poppins-Regular',
+    color: Theme.TERTIARY,
+  },
+  checkmarkIconContainer: {
+    justifyContent: 'center',
+  },
+  
+  
 });

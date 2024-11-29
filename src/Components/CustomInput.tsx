@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
   inputContainer: {
     height: 50,
     borderWidth: 2,
-    borderRadius: 12,
+    borderRadius: 10,
     backgroundColor: 'white',
     paddingHorizontal: 10,
     justifyContent: 'center',
