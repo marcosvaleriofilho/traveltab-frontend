@@ -12,12 +12,10 @@ import MainScreen from './src/Screens/MainScreen';
 import ProfileScreen from './src/Screens/ProfileScreen';
 import TasksScreen from './src/Screens/TasksScreen';
 import MoneyScreen from './src/Screens/MoneyScreen';
-import NotifyScreen from './src/Screens/NotifyScreen';
 import CreateGroupScreen from './src/Screens/CreateGroupScreen';
 import GroupDetailScreen from './src/Screens/GroupDetailScreen';
 import ManageMembersScreen from './src/Screens/ManageMembersScreen'; // Renomeado para "Gerenciar Membros"
 import AddExpenseScreen from './src/Screens/AddExpenseScreen';
-import GroupExpensesScreen from './src/Screens/GroupExpensesScreen';
 import { Ionicons } from '@expo/vector-icons';
 import { Theme } from './constants/Theme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -34,7 +32,6 @@ export type RootStackParamList = {
   GroupDetailScreen: { groupId: string };
   ManageMembersScreen: { groupId: string }; // Renomeado para "Gerenciar Membros"
   AddExpenseScreen: { groupId: string };
-  GroupExpensesScreen: { groupId: string };
   TasksScreen: { groupId: string };
   ManageExpenseScreen: {
     expenseId: string;
@@ -202,21 +199,7 @@ export default function App() {
               },
             }}
           />
-          <Stack.Screen
-            name="GroupExpensesScreen"
-            component={GroupExpensesScreen}
-            options={{
-              title: 'Group Expenses',
-              headerStyle: {
-                backgroundColor: Theme.TERTIARY,
-              },
-              headerTintColor: '#fff',
-              headerTitleStyle: {
-                fontWeight: 'bold',
-                fontFamily: 'Poppins-Bold',
-              },
-            }}
-          />
+          
           <Stack.Screen
             name="TasksScreen"
             component={TasksScreen}
