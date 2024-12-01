@@ -158,6 +158,8 @@ export default function ProfileScreen() {
         onRequestClose={() => setModalVisible(false)}
       >
         <View style={styles.modalContainer}>
+
+          
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Edit {editField}</Text>
             <TextInput
@@ -167,15 +169,16 @@ export default function ProfileScreen() {
               onChangeText={setInputValue}
             />
             <View style={styles.modalButtons}>
-              <TouchableOpacity style={styles.modalButton} onPress={handleSave}>
-                <Text style={styles.modalButtonText}>Save</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.modalButton, { backgroundColor: 'red' }]}
+            <TouchableOpacity
+                style={[styles.modalButton, {  borderWidth: 2, borderColor: Theme.INPUT  }]}
                 onPress={() => setModalVisible(false)}
               >
-                <Text style={styles.modalButtonText}>Cancel</Text>
+                <Text style={[styles.modalButtonText, {color: Theme.TERTIARY} ]}>Cancel</Text>
               </TouchableOpacity>
+              <TouchableOpacity style={[styles.modalButton, {backgroundColor: Theme.TERTIARY}]} onPress={handleSave}>
+                <Text style={styles.modalButtonText}>Save</Text>
+              </TouchableOpacity>
+              
             </View>
           </View>
         </View>
@@ -240,8 +243,8 @@ const styles = StyleSheet.create({
   },
   input: {
     width: '100%',
-    borderWidth: 1,
-    borderColor: Theme.SECONDARY,
+    borderWidth: 2,
+    borderColor: Theme.INPUT,
     borderRadius: 5,
     padding: 10,
     marginBottom: 20,
@@ -254,15 +257,14 @@ const styles = StyleSheet.create({
   },
   modalButton: {
     flex: 1,
-    padding: 10,
+    padding: 12,
     marginHorizontal: 5,
-    backgroundColor: Theme.SECONDARY,
+    borderRadius: 10,
     alignItems: 'center',
-    borderRadius: 5,
   },
   modalButtonText: {
-    fontFamily: 'Poppins-Regular',
     fontSize: 16,
-    color: 'white',
+    fontFamily: 'Poppins-Bold',
+    color: '#fff',
   },
 });
