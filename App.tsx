@@ -9,7 +9,6 @@ import HomeScreen from './src/Screens/HomeScreen';
 import SignUpScreen from './src/Screens/SignUpScreen';
 import LoginScreen from './src/Screens/LoginScreen';
 import MainScreen from './src/Screens/MainScreen';
-import ProfileScreen from './src/Screens/ProfileScreen';
 import TasksScreen from './src/Screens/TasksScreen';
 import MoneyScreen from './src/Screens/MoneyScreen';
 import CreateGroupScreen from './src/Screens/CreateGroupScreen';
@@ -56,8 +55,7 @@ function MainTabs() {
             switch (route.name) {
               case 'Groups':
                 return 'home-outline';
-              case 'Profile':
-                return 'person-outline';
+      
               case 'Balance':
                 return 'cash-outline';
               default:
@@ -81,7 +79,6 @@ function MainTabs() {
     >
       <Tab.Screen name="Balance" component={MoneyScreen} />
       <Tab.Screen name="Groups" component={MainScreen} />
-      <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );
 }

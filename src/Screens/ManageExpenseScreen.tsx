@@ -44,11 +44,11 @@ export default function ManageExpenseScreen() {
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [currentEditUser, setCurrentEditUser] = useState<AssignedUser | null>(null);
-  const [tempValue, setTempValue] = useState(''); // Valor temporário durante a edição
+  const [tempValue, setTempValue] = useState('');
 
   const handleOpenEditModal = (user: AssignedUser) => {
     setCurrentEditUser(user);
-    setTempValue(user.value || ''); // Configura o valor atual para edição
+    setTempValue(user.value || '');
     setIsModalVisible(true);
   };
 
@@ -71,12 +71,6 @@ export default function ManageExpenseScreen() {
   };
 
   useEffect(() => {
-    console.log('Assigned Users:', assignedUsers);
-    console.log('Selected Members State:', selectedMembers);
-  }, [selectedMembers]);
-
-
-  useEffect(() => {
     if (assignedUsers) {
       const isSplitEvenlyCalculated = assignedUsers.every(
         (user) => user.value === balance / assignedUsers.length
@@ -94,7 +88,6 @@ export default function ManageExpenseScreen() {
     }
     fetchGroupMembers();
   }, []);
-
 
   const fetchGroupMembers = async () => {
     try {
@@ -117,7 +110,7 @@ export default function ManageExpenseScreen() {
           prevSelected.map((member) => ({
             ...member,
             email: membersWithDetails.find((m) => m.id === member.id)?.email || 'Unknown',
-            isPaid: member.isPaid, // Certifique-se de manter o estado de pagamento
+            isPaid: member.isPaid,
           }))
         );
       } else {
@@ -128,16 +121,35 @@ export default function ManageExpenseScreen() {
     }
   };
 
+  // Add the useEffect for recalculating per-person amounts
+  useEffect(() => {
+    if (isEvenSplit) {
+      const totalAmount = parseFloat(amount) || 0;
+      const numMembers = selectedMembers.length;
+
+      if (numMembers > 0) {
+        const splitAmount = (totalAmount / numMembers).toFixed(2);
+
+        setSelectedMembers((prevMembers) =>
+          prevMembers.map((member) => ({
+            ...member,
+            value: splitAmount,
+          }))
+        );
+      }
+    }
+  }, [amount, isEvenSplit, selectedMembers.length]);
+
   const handleMarkPaid = async (userId: string) => {
     const user = selectedMembers.find((member) => member.id === userId);
-  
+
     if (!user) {
       Alert.alert('Error', 'User must be added to the expense before marking as paid.');
       return;
     }
-  
+
     const newPaidStatus = !user.isPaid;
-  
+
     try {
       const response = await fetch(
         `http://10.0.2.2:8080/expenses/markPaid/${expenseId}/${userId}`,
@@ -147,7 +159,7 @@ export default function ManageExpenseScreen() {
           body: JSON.stringify({ isPaid: newPaidStatus }),
         }
       );
-  
+
       if (response.ok) {
         setSelectedMembers((prevMembers) =>
           prevMembers.map((member) =>
@@ -156,16 +168,14 @@ export default function ManageExpenseScreen() {
         );
       } else {
         const errorText = await response.text();
-        console.error('Erro ao marcar como pago:', errorText);
+        console.error('Error marking as paid:', errorText);
         Alert.alert('Error', `Failed to mark as paid: ${errorText}`);
       }
     } catch (error) {
-      console.error('Erro ao marcar como pago:', error);
+      console.error('Error marking as paid:', error);
       Alert.alert('Error', `Failed to mark as paid: ${error}`);
     }
   };
-  
-  
 
   const handleDeleteExpense = async () => {
     Alert.alert(
@@ -185,15 +195,14 @@ export default function ManageExpenseScreen() {
 
               if (response.ok) {
                 Alert.alert('Success', 'Expense deleted successfully!');
-                // Navegar de volta para os detalhes do grupo após deletar a despesa
                 navigation.navigate('GroupDetailScreen', { groupId });
               } else {
                 const errorText = await response.text();
-                console.error('Erro do backend ao deletar despesa:', errorText);
+                console.error('Backend error deleting expense:', errorText);
                 Alert.alert('Error', `Failed to delete expense: ${errorText}`);
               }
             } catch (error) {
-              console.error('Erro na função handleDeleteExpense:', error);
+              console.error('Error in handleDeleteExpense:', error);
               Alert.alert('Error', `Failed to delete expense: ${error}`);
             } finally {
               setLoading(false);
@@ -203,7 +212,6 @@ export default function ManageExpenseScreen() {
       ]
     );
   };
-
 
   const handleSaveExpense = async () => {
     if (!expenseDescription || !amount) {
@@ -227,25 +235,27 @@ export default function ManageExpenseScreen() {
     if (!isEvenSplit && totalAssigned !== parseFloat(amount)) {
       Alert.alert(
         'Error',
-        `The total assigned amount (${totalAssigned.toFixed(2)}) must match the expense amount (${amount}).`
+        `The total assigned amount (${totalAssigned.toFixed(
+          2
+        )}) must match the expense amount (${amount}).`
       );
       return;
     }
 
-    // Verifique se todos os usuários atribuídos estão pagos
+    // Check if all assigned users have paid
     const allUsersPaid = selectedMembers.every((member) => member.isPaid);
 
     const updatedExpensePayload = {
       updateExpensesRequestDTO: {
         description: expenseDescription.trim(),
         balance: parseFloat(amount),
-        isPaid: allUsersPaid, // Reflete se todos os usuários estão pagos
+        isPaid: allUsersPaid,
       },
       newAssignedUsersMap,
-      splitEvenly: isEvenSplit, // Certifique-se de que o estado está correto
+      splitEvenly: isEvenSplit,
     };
 
-    console.log('Payload enviado:', updatedExpensePayload);
+    console.log('Payload sent:', updatedExpensePayload);
 
     setLoading(true);
     try {
@@ -262,70 +272,33 @@ export default function ManageExpenseScreen() {
         navigation.goBack();
       } else {
         const errorText = await response.text();
-        console.error('Erro no backend:', errorText);
+        console.error('Backend error:', errorText);
         Alert.alert('Error', `Failed to update expense: ${errorText}`);
       }
     } catch (error) {
-      console.error('Erro ao atualizar despesa:', error);
+      console.error('Error updating expense:', error);
       Alert.alert('Error', `Failed to update expense: ${error}`);
     } finally {
       setLoading(false);
     }
   };
 
-
-  const handleToggleExpense = async (userId: string) => {
+  const handleToggleExpense = (userId: string) => {
     const userInExpense = selectedMembers.some((member) => member.id === userId);
-  
+
     const updatedMembers = userInExpense
-      ? selectedMembers.filter((member) => member.id !== userId) // Remove o usuário
-      : [...selectedMembers, { id: userId, email: '', value: '0.00', isPaid: false }]; // Adiciona o usuário
-  
+      ? selectedMembers.filter((member) => member.id !== userId) // Remove the user
+      : [...selectedMembers, { id: userId, email: '', value: '0.00', isPaid: false }]; // Add the user
+
     setSelectedMembers(updatedMembers);
-  
-    try {
-      // Atualizar no servidor
-      const newAssignedUsersMap: { [key: string]: number } = {};
-      updatedMembers.forEach((member) => {
-        const value = parseFloat(member.value || '0');
-        newAssignedUsersMap[member.id] = value;
-      });
-  
-      const updatedExpensePayload = {
-        updateExpensesRequestDTO: {
-          description: expenseDescription.trim(),
-          balance: parseFloat(amount),
-          isPaid: updatedMembers.every((member) => member.isPaid),
-        },
-        newAssignedUsersMap,
-        splitEvenly: isEvenSplit,
-      };
-  
-      const response = await fetch(`http://10.0.2.2:8080/expenses/update/${expenseId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updatedExpensePayload),
-      });
-  
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Erro ao atualizar membros no backend:', errorText);
-        Alert.alert('Error', `Failed to update expense members: ${errorText}`);
-      }
-    } catch (error) {
-      console.error('Erro ao atualizar membros no backend:', error);
-      Alert.alert('Error', `Failed to update expense members: ${error}`);
-    }
   };
-  
-  
 
   const renderMemberItem = ({ item }: { item: { id: string; email: string } }) => {
     const user = selectedMembers.find((m) => m.id === item.id);
     const isInExpense = !!user;
     const isPaid = user?.isPaid || false;
     const userValue = user?.value || '0.00';
-  
+
     return (
       <View style={styles.memberContainer}>
         {/* Checkmark */}
@@ -340,40 +313,35 @@ export default function ManageExpenseScreen() {
           />
           <Text style={[styles.memberText, { marginLeft: 10 }]}>{item.email}</Text>
         </TouchableOpacity>
-  
-        {/* Valor e Is Paid */}
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Text style={styles.memberValue}>R$ {userValue}</Text>
-  
-          {/* Is Paid */}
-          <TouchableOpacity
-            style={styles.paymentIconContainer}
-            onPress={() => handleMarkPaid(item.id)}
-            disabled={!isInExpense || loadingUserId === item.id}
-          >
-            <MaterialCommunityIcons
-              name="cash"
-              size={24}
-              color={isPaid ? 'green' : 'red'}
-            />
-          </TouchableOpacity>
-  
-          {/* Editar Valor */}
-          {!isEvenSplit && (
+
+        {/* Value and Is Paid */}
+        {isInExpense && (
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Text style={styles.memberValue}>R$ {userValue}</Text>
+
+            {/* Is Paid */}
             <TouchableOpacity
-              onPress={() => handleOpenEditModal(item)}
-              style={styles.editIconContainer}
+              style={styles.paymentIconContainer}
+              onPress={() => handleMarkPaid(item.id)}
+              disabled={loadingUserId === item.id}
             >
-              <MaterialCommunityIcons name="dots-horizontal" size={24} color="gray" />
+              <MaterialCommunityIcons name="cash" size={24} color={isPaid ? 'green' : 'red'} />
             </TouchableOpacity>
-          )}
-        </View>
+
+            {/* Edit Value */}
+            {!isEvenSplit && (
+              <TouchableOpacity
+                onPress={() => handleOpenEditModal(user!)}
+                style={styles.editIconContainer}
+              >
+                <MaterialCommunityIcons name="dots-horizontal" size={24} color="gray" />
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
       </View>
     );
   };
-  
-  
-  
 
   return (
     <View style={styles.container}>
@@ -392,13 +360,17 @@ export default function ManageExpenseScreen() {
       <Text style={styles.label}>Split Expense:</Text>
       <View style={styles.radioContainer}>
         <Text
-          onPress={() => setIsEvenSplit(true)}
+          onPress={() => {
+            setIsEvenSplit(true);
+          }}
           style={isEvenSplit ? styles.selected : styles.radio}
         >
           Equal Split
         </Text>
         <Text
-          onPress={() => setIsEvenSplit(false)}
+          onPress={() => {
+            setIsEvenSplit(false);
+          }}
           style={!isEvenSplit ? styles.selected : styles.radio}
         >
           Custom Split
@@ -422,12 +394,7 @@ export default function ManageExpenseScreen() {
             color={Theme.TERTIARY}
             textColor={Theme.SECONDARY}
           />
-          <CustomButton
-            title="Delete Expense"
-            onPress={handleDeleteExpense}
-            color="red"
-            textColor="#fff"
-          />
+          <CustomButton title="Delete Expense" onPress={handleDeleteExpense} color="red" textColor="#fff" />
         </>
       )}
       <Modal
@@ -439,7 +406,7 @@ export default function ManageExpenseScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
             <Text style={styles.modalTitle}>Edit Value</Text>
-            {/* Input simples para editar o valor */}
+            {/* Simple input to edit the value */}
             <TextInput
               style={styles.modalInput}
               keyboardType="numeric"
@@ -447,13 +414,13 @@ export default function ManageExpenseScreen() {
               onChangeText={setTempValue}
               placeholder="Enter new value"
             />
-            {/* Botões de ação */}
+            {/* Action buttons */}
             <View style={styles.modalButtons}>
               <TouchableOpacity
                 onPress={() => setIsModalVisible(false)}
-                style={[styles.modalButton, { borderWidth:2,borderColor: Theme.INPUT }]}
+                style={[styles.modalButton, { borderWidth: 2, borderColor: Theme.INPUT }]}
               >
-                <Text style={[styles.modalButtonText,{color: Theme.TERTIARY}]}>Cancel</Text>
+                <Text style={[styles.modalButtonText, { color: Theme.TERTIARY }]}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={handleSaveEdit}
@@ -465,12 +432,9 @@ export default function ManageExpenseScreen() {
           </View>
         </View>
       </Modal>
-
     </View>
   );
-
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,

@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
         borderWidth: 2,
     },
     buttonText: {
-        fontSize: 20,
+        fontSize: 16,
         fontFamily: "Poppins-Bold",
     },
     disabledButton: {

@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     padding: 16,
     justifyContent: 'center',
-    height: 100,
+    height: 125,
   },
   text: {
     fontFamily: 'Poppins-Regular',

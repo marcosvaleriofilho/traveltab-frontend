@@ -305,13 +305,14 @@ export default function TasksScreen({ route, navigation }: any) {
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <Text style={{fontFamily:'Poppins-SemiBold', fontSize: 18, textAlign: 'center'}}>Are you sure you want to delete this task?</Text>
-            <View style={{flexDirection: 'row',     marginHorizontal: 5,}}>
+            <View style={{flexDirection: 'row',     marginHorizontal: 0,}}>
+              
             <CustomButton
               title="Cancel"
               color={Theme.SECONDARY}
               textColor={Theme.PRIMARY}
               onPress={() => setDeleteConfirmationVisible(false)}
-              buttonStyle={{ marginTop: 10, width:'50%', borderWidth: 2, borderColor: Theme.PRIMARY }}
+              buttonStyle={{ marginTop: 10, width:'50%', borderWidth: 2, borderColor: Theme.INPUT }}
             />
             <CustomButton
               title="Confirm"
